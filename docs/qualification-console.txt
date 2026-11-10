@@ -1,0 +1,17 @@
+
+CP/M Plus 3.1 - Kaypro 2
+A>TYPE HELLO.TXT
+CP/M Plus 3.1 on Kaypro 2
+
+A>DIR
+A: CPM3     SYS : CCP      COM : DIR      COM : TYPE     COM : PIP      COM 
+A: ERASE    COM : RENAME   COM : SHOW     COM : SET      COM : SUBMIT   COM 
+A: HELLO    TXT : TEST     SUB 
+A>PIP COPY.TXT=HELLO.TXT
+
+A>RENAME RENAMED.TXT=COPY.TXT
+A>^C
+A>TYPE RENAMED.TXT
+CP/M Plus 3.1 on Kaypro 2
+
+A>

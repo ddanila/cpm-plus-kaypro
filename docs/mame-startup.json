@@ -1,0 +1,10 @@
+{
+  "pass": true,
+  "pc": 32945,
+  "relocated": true,
+  "low_ram": true,
+  "rom_sha256": "22444ec44d7d09dd1bceb1abff329691763a007a5370a5b8bbe7067c504e6260",
+  "mame_version": "MAME v0.289 (unknown)",
+  "hardware_executed": false,
+  "scope": "ROM reset, relocation, RAM bank switch, serial RX wait; synthetic character and keyboard ROMs"
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "title": "CPU and memory schematic",
+    "url": "https://retrocmp.de/kaypro/Kaypro-II-4_83_81-241_Schematics_1983-01-05_1983-01-12_CPU.pdf",
+    "sha256": "5b09ddd27b88079bbca387c5e3b3cbe2cb4f02ae4a665de962ff8e11cd609f7e",
+    "reviewed": "2026-11-10"
+  },
+  {
+    "title": "Technical manual 1484-E",
+    "url": "https://retrocmp.de/kaypro/1985_1484-E_KayproTechnicalManual.pdf",
+    "sha256": "22775d32b2e59c7223ecd83c9e8b15d9ffc5764dbfb4d1579689eeff2dce6340",
+    "reviewed": "2026-11-10"
+  },
+  {
+    "title": "MAME Kaypro driver",
+    "url": "https://raw.githubusercontent.com/mamedev/mame/master/src/mame/kaypro/kaypro.cpp",
+    "sha256": "0ea8c03bbb986b56bc037711403e0a020fda9f04156f361e7566533aa7706c5d",
+    "reviewed": "2026-11-10"
+  }
+]

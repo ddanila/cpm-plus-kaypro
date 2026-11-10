@@ -20,6 +20,7 @@ assert len(rom) == 4096
 (romdir / '81-146.u43').write_bytes(bytes(2048))
 (romdir / 'kaypro_ii-ins8048.bin').write_bytes(bytes(1024))
 r = subprocess.run([a.mame, 'kayproii', '-bios', '232', '-rompath', str(romdir.parent.resolve()),
+    '-cfg_directory', str((a.out / 'cfg').resolve()),
     '-video', 'none', '-sound', 'none', '-nothrottle', '-skip_gameinfo',
     '-autoboot_delay', '0', '-autoboot_script', str(ROOT / 'tools/check_mame.lua'),
     '-seconds_to_run', '5'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=45)

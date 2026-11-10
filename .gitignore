@@ -3,3 +3,4 @@ out/
 local/
 __pycache__/
 zout/
+cfg/

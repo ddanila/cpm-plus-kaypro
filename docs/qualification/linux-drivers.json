@@ -1,0 +1,12 @@
+{
+  "complete": true,
+  "scope": "resident driver unit tests (RAM-loaded, not a boot)",
+  "cases": [
+    "terminal controls, screen/cursor oracle and bank isolation",
+    "low-RAM caller stack survives video bank switch",
+    "keyboard 128-byte queue and exact drop-newest overflow",
+    "keyboard queue wrap and recovery",
+    "warm-boot input hold",
+    "host arrow translation and standalone escape"
+  ]
+}

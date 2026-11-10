@@ -16,5 +16,32 @@
     "url": "https://raw.githubusercontent.com/mamedev/mame/master/src/mame/kaypro/kaypro.cpp",
     "sha256": "0ea8c03bbb986b56bc037711403e0a020fda9f04156f361e7566533aa7706c5d",
     "reviewed": "2026-11-10"
+  },
+  {
+    "title": "MAME video",
+    "url": "https://raw.githubusercontent.com/mamedev/mame/e0a5e1cad5d8dc72c15a609c6323651847f4fdcd/src/mame/kaypro/kaypro_v.cpp",
+    "sha256": "5d17a571f9d66d888d3c3cb63c91059284887c5bf273f4c58c2feb88417cadb7",
+    "reviewed": "2026-11-10",
+    "revision": "e0a5e1cad5d8dc72c15a609c6323651847f4fdcd"
+  },
+  {
+    "title": "MAME keyboard",
+    "url": "https://raw.githubusercontent.com/mamedev/mame/e0a5e1cad5d8dc72c15a609c6323651847f4fdcd/src/devices/bus/keytronic/kay_kbd.cpp",
+    "sha256": "f6737beb165e8fa3adc61fba41e344327cbda499931f44963dd08969efc4cd05",
+    "reviewed": "2026-11-10",
+    "revision": "e0a5e1cad5d8dc72c15a609c6323651847f4fdcd"
+  },
+  {
+    "title": "MAME machine I/O",
+    "url": "https://raw.githubusercontent.com/mamedev/mame/e0a5e1cad5d8dc72c15a609c6323651847f4fdcd/src/mame/kaypro/kaypro_m.cpp",
+    "sha256": "5af9d84bc6d3351d1a3fefc07078026cb1917e7e898ebbcb5827a67cd568597d",
+    "reviewed": "2026-11-10",
+    "revision": "e0a5e1cad5d8dc72c15a609c6323651847f4fdcd"
+  },
+  {
+    "title": "Kaypro II user guide, printed p56 terminal controls",
+    "url": "https://retrocmp.de/kaypro/1982_kaypro-II-users-guide.pdf",
+    "sha256": "d0ab77690139a4433d7e77da1731db5c5870753d7ab2404eb29c6584cfc78526",
+    "reviewed": "2026-11-10"
   }
 ]

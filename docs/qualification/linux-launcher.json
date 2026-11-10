@@ -1,0 +1,12 @@
+{
+  "complete": true,
+  "hardware_executed": false,
+  "cases": [
+    "fragmented identity and exact CRC packet, no implicit execution",
+    "old ROM rejected",
+    "NAK rejected without execution",
+    "bounded absent-ROM timeout",
+    "partial writes preserve 256 KiB stream",
+    "matched-artifact manifest required"
+  ]
+}

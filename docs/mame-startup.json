@@ -1,10 +1,11 @@
 {
   "pass": true,
-  "pc": 32945,
+  "pc": 32973,
   "relocated": true,
   "low_ram": true,
-  "rom_sha256": "22444ec44d7d09dd1bceb1abff329691763a007a5370a5b8bbe7067c504e6260",
+  "crt_banner": true,
+  "rom_sha256": "6133c46b1b31a8cc1d93d2428b716399c9c787d1ee6c5e3b785f67853e569633",
   "mame_version": "MAME v0.289 (unknown)",
   "hardware_executed": false,
-  "scope": "ROM reset, relocation, RAM bank switch, serial RX wait; synthetic character and keyboard ROMs"
+  "scope": "ROM reset, relocation, RAM bank switch, serial RX wait and CRT banner; synthetic character and keyboard ROMs"
 }

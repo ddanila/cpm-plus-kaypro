@@ -20,6 +20,9 @@ def main():
         for name in ('dir','type','pip','erase','rename','show','set','submit'):
             put(name.upper()+'.COM',z.read(name+'.com'))
     put('HELLO.TXT',b'CP/M Plus 3.1 on Kaypro 2\r\n\x1a')
+    put('PATTERN.BIN',bytes((i*73+(i>>8))&255 for i in range(8192)))
+    put('SCREEN.COM',(ROOT/'build/screen-test.cim').read_bytes())
+    put('KEYS.COM',(ROOT/'build/keys-test.cim').read_bytes())
     put('TEST.SUB',b'DIR HELLO.TXT\r\nTYPE HELLO.TXT\r\n\x1a')
     (ROOT/'out').mkdir(exist_ok=True)
     (ROOT/'out/kaypro.img').write_bytes(disk)

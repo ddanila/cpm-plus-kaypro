@@ -1,8 +1,8 @@
 ; SPDX-License-Identifier: MIT
 ; Kaypro 81-240A serial loader. 4 KiB EPROM; no stock firmware needed.
 ; Relocate to 8000h BEFORE disabling ROM: low writes do not reach RAM.
-; Fixed destination C000h, entry C033h. Length 1..35FFh, CRC16-CCITT.
-; Protocol: host 'K', ROM 'KP1', host length LE, payload, CRC BE;
+; Fixed destination C000h, entry C033h. Length 36h..35FFh, CRC16-CCITT.
+; Protocol: host 'K', ROM 'KP2', host length LE, payload, CRC BE;
 ; ROM ACK 06 then host 'G' executes. NAK 15 restarts. Polls time out.
         org 0
         di

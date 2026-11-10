@@ -3,6 +3,7 @@ PYTHON ?= python3
 CC ?= cc
 CXX ?= c++
 BISON ?= bison
+AUTOMAKE ?= automake
 BUILD := build
 OUT := out
 BIN := $(BUILD)/bin
@@ -13,19 +14,19 @@ ZXCC_SOURCE := $(BUILD)/zxcc-0.5.7
 ZXCC_PREFIX := $(BUILD)/zxcc-install
 .DEFAULT_GOAL := all
 DAC ?= ../dac-emulation
-all: out/kaypro.img build/boot.rom
-build/cpm3.sys: src/cpm3-bios.asm tools/regenerate_cpm3.py $(ZXCC)
+all: build/manifest.json
+build/cpm3.sys: src/cpm3-bios.asm tools/regenerate_cpm3.py third_party/cpm3/bdos3.spr third_party/cpm3/scb.asm third_party/cpm3/releases/cpm3bin_unix-20260607.zip third_party/inputs.json $(ZXCC)
 	$(PYTHON) tools/regenerate_cpm3.py --adapter-address 0xc000 --top-page 0xbf --metadata-policy gencpm --output $@
 build/system.inc: build/cpm3.sys tools/system_contract.py
 	$(PYTHON) tools/system_contract.py
-build/platform.cim: src/platform.asm src/serial-platform.asm src/serial-common.asm build/system.inc $(ZMAC)
+build/platform.cim: src/platform.asm src/serial-platform.asm src/serial-common.asm src/console.asm src/keyboard.asm build/system.inc $(wildcard third_party/juku-common/platform/*.asm) third_party/juku-common/platform/rom-abi.inc $(ZMAC)
 	$(ZMAC) --zmac -o $@ -o build/platform.lst $<
-build/boot-stage.cim: src/boot-stage.asm $(ZMAC)
+build/boot-stage.cim: src/boot-stage.asm src/console.asm $(ZMAC)
 	$(ZMAC) --zmac -o $@ -o build/boot-stage.lst $<
 build/boot.rom: src/boot.asm build/boot-stage.cim $(ZMAC)
 	$(ZMAC) --zmac -o build/boot.cim -o build/boot.lst $<
 	cp build/boot.cim $@
-out/kaypro.img: build/platform.cim tools/build_image.py tools/media.py
+out/kaypro.img: build/platform.cim build/keys-test.cim build/screen-test.cim tools/build_image.py tools/media.py third_party/cpm3/ccp.com third_party/inputs.json
 	$(PYTHON) tools/build_image.py
 $(BUILD) $(OUT) $(BIN) $(BUILD)/zmac:
 	mkdir -p $@
@@ -77,6 +78,7 @@ $(ZXCC): $(ZXCC_ARCHIVE) | $(BUILD) $(BIN)
 		6095119a31a610de84ff8f049d17421dd912c6fd2df18373e5f0a3bc796eb4bf
 	mkdir -p $(ZXCC_SOURCE) $(ZXCC_PREFIX)
 	tar -xzf $< --strip-components=1 -C $(ZXCC_SOURCE)
+	for confdir in config cpmio/config cpmredir/config; do cp "$$($(AUTOMAKE) --print-libdir)/config.guess" "$$($(AUTOMAKE) --print-libdir)/config.sub" "$(ZXCC_SOURCE)/$$confdir/"; done
 	cd $(ZXCC_SOURCE) && CFLAGS='-O2 -std=gnu17' \
 		./configure --prefix=$(abspath $(ZXCC_PREFIX))
 	$(MAKE) -C $(ZXCC_SOURCE)
@@ -86,5 +88,19 @@ $(ZXCC): $(ZXCC_ARCHIVE) | $(BUILD) $(BIN)
 
 
 probe: build/kaypro-probe
-build/kaypro-probe: tools/probe.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/machines/kaypro2/kaypro2.h | build
+build/kaypro-probe: tools/probe.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/machines/kaypro2/kaypro2.h $(DAC)/common/cpu/z80.c $(DAC)/common/cpu/z80.h $(DAC)/common/trace/trace.c $(DAC)/common/trace/trace.h $(DAC)/third_party/cpu/chips/z80.h | build
 	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -I$(DAC) tools/probe.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/common/cpu/z80.c $(DAC)/common/trace/trace.c -o $@
+
+SHLIB_EXT := $(if $(filter Darwin,$(shell uname)),dylib,so)
+board-test: build/board-test.$(SHLIB_EXT)
+build/board-test.$(SHLIB_EXT): tools/board_test.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/machines/kaypro2/kaypro2.h $(DAC)/common/cpu/z80.c $(DAC)/common/cpu/z80.h $(DAC)/common/trace/trace.c $(DAC)/common/trace/trace.h $(DAC)/third_party/cpu/chips/z80.h | build
+	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -I$(DAC) tools/board_test.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/common/cpu/z80.c $(DAC)/common/trace/trace.c -o $@
+
+build/keys-test.cim: src/keys-test.asm $(ZMAC)
+	$(ZMAC) --zmac -o $@ $<
+build/manifest.json: out/kaypro.img build/boot.rom tools/build_contract.py
+	$(PYTHON) tools/build_contract.py
+.PHONY: all probe board-test
+
+build/screen-test.cim: src/screen-test.asm $(ZMAC)
+	$(ZMAC) --zmac -o $@ $<

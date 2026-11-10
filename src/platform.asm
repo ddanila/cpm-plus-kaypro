@@ -24,31 +24,58 @@
         jp keypause
         jp keyresume
 init:   di
+        call keyboard_init
+        call local_init
         call remote_init
         jp home
 unavailable:
-keyservice:
-keypause:
-keyresume:
         xor a
         ret
-const:  jp rh_status
-conin:  call rh_status
+const:  call keyservice
+        ld a,(keyhold)
         or a
-        jr z,conin
-        jp rh_input
+        jr nz,const_empty
+        ld a,(keycount)
+        or a
+        jr z,const_remote
+        ld a,0ffh
+        ret
+const_remote:
+        jp rh_status
+const_empty:
+        xor a
+        ret
+conin:  call keyresume
+conin_wait:
+        call const
+        or a
+        jr z,conin_wait
+        ld a,(keycount)
+        or a
+        jp z,rh_input
+        push hl
+        push de
+        call keyboard_get
+        pop de
+        pop hl
+        ret
 conout: push af
         push bc
         push de
         push hl
+        call keyservice
+        call localout
         ld a,c
         ld (RHINPUT),a
         call rh_output
+        call keyservice
         pop hl
         pop de
         pop bc
         pop af
         ret
+        include "src/console.asm"
+        include "src/keyboard.asm"
 seldsk: ld a,c
         ld (drive),a
         ld hl,0

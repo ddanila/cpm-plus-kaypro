@@ -98,6 +98,9 @@ serial_tx:
         push af
         ld bc,0
 serial_tx_wait:
+        ld a,c
+        and 15
+        call z,keyservice
         in a,(6)
         and 4
         jr nz,serial_tx_ready
@@ -119,6 +122,9 @@ serial_rx:
         push bc
         ld bc,0
 serial_rx_wait:
+        ld a,c
+        and 15
+        call z,keyservice
         in a,(6)
         and 1
         jr nz,serial_rx_ready

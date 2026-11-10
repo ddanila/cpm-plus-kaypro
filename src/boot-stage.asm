@@ -8,7 +8,7 @@
         out (6),a
         ld a,4
         out (6),a
-        ld a,44h            ; x16, 8N1
+        ld a,45h            ; x16, 8O1 (same framing as runtime)
         out (6),a
         ld a,3
         out (6),a
@@ -20,6 +20,9 @@
         out (6),a
         ld a,15
         out (0),a
+        call local_init
+        ld hl,boot_waiting
+        call boot_print
 sync:   call rx
         jr c,sync
         cp 'K'
@@ -28,7 +31,7 @@ sync:   call rx
         call tx
         ld a,'P'
         call tx
-        ld a,'1'
+        ld a,'2'
         call tx
         call rx
         jr c,fail
@@ -38,8 +41,12 @@ sync:   call rx
         ld d,a
         cp 36h
         jr nc,fail
-        or e
-        jr z,fail
+        or a
+        jr nz,length_ok
+        ld a,e
+        cp 36h              ; minimum contains C033 jump instruction
+        jr c,fail
+length_ok:
         ld hl,0c000h
         ld bc,0ffffh
 receive:call rx
@@ -81,7 +88,13 @@ noxor:  dec e
         cp 'G'
         jr nz,fail
         jp 0c033h
-fail:   ld a,15h
+fail:   push hl
+        ld hl,boot_failed
+        call boot_print
+        pop hl
+        ld a,30h
+        out (6),a
+        ld a,15h
         call tx
         jp sync
 rx:     push de
@@ -119,3 +132,17 @@ txready:pop de
         out (4),a
         or a
         ret
+
+boot_print:
+        ld a,(hl)
+        or a
+        ret z
+        ld c,a
+        call localout
+        inc hl
+        jr boot_print
+keyboard_bell:
+        ret
+boot_waiting: db 'Kaypro KP2: waiting for host (19200 8O1)',13,10,0
+boot_failed: db 'Transfer failed; waiting for retry',13,10,0
+        include "src/console.asm"

@@ -1,0 +1,67 @@
+{
+  "complete": true,
+  "hardware_executed": false,
+  "platform": "Linux-7.0.14-orbstack-00380-ga7e0a2dc9535-aarch64-with-glibc2.36",
+  "architecture": "aarch64",
+  "python": "3.11.2 (main, Oct  7 2026, 12:35:07) [GCC 12.2.0]",
+  "source_sha256": {
+    "Makefile": "e8f656773ad568b0b6ff43682093ad2c0d86643ca805fcb6e2f0193f0ba8f5c1",
+    "src/boot-stage.asm": "9afd02a56653bb30d318ef7281bbbeb361ab4bd1d4b74c11bcdd99bf6ae6dd27",
+    "src/boot.asm": "053cc20c25e0e26b877e405e63e2d03174bc0c1c074a4796e0a98620f58b4e34",
+    "src/console.asm": "553f5c4392cdcb6adbfe143a4061951d42000ea36ccfe03188c2d14e45d339b9",
+    "src/cpm3-bios.asm": "b56489357c58a754c8b73a900088723344bdd5a55832a1c1b484a27b9b227dbd",
+    "src/keyboard.asm": "545dab9f36855829993d7f96baab908d2f7f134e503d9794f08547e1a2850fed",
+    "src/keys-test.asm": "eabe4bdcfaf1afc287f96b1fcbcf229d811edae5bbe480e74055a2043f5d9fef",
+    "src/platform.asm": "908bec13211c9fac34138db8ed83810dcf80a937e17d7a4fa5fa6233c5ca30b6",
+    "src/screen-test.asm": "cb1a3e2bb72d5dd566acb40851232696d431632f5b2c24ac894f47bfe65f222b",
+    "src/serial-common.asm": "31df4c3b628302695edd55fc5c6c57ca28b572cac7541628d1d2361d687ebf81",
+    "src/serial-platform.asm": "4d581bc9e0e937cc5a0ea0c63d4179d44ea5986150b4a1dc8e87ce10f975e401",
+    "tools/build_contract.py": "31ef4c77dddc4b1779932b212d65232ac3cc177c5d9805b1628e8c43e4894d3b",
+    "tools/build_image.py": "1066164fbd972996af71c58e1f7defef9daebd725b9a333c64c7932cb11343b7",
+    "tools/check_boot.py": "0382fd2abb448bfa4007b3df0ad681d13d81904c1199f5353bbd98355ccaa154",
+    "tools/check_drivers.py": "86db7af7c327e7a1b9c7a1573a8d3f81a4b1f5b65027dd475ff11ace25518fa8",
+    "tools/check_launcher.py": "23285feb3db82b542124e8c69a4fc079d05d6a3931abd3105072d50655487ea4",
+    "tools/check_mame.py": "d95b80df43bb1e0c163b4bd1a8bb64fd9d027b0934ea2a01c893af46a2a4f7d4",
+    "tools/check_runtime.py": "a45f9163014b426d0d6b144800770fe5401e69dae22d2d3fc022d9d1d6b44a0b",
+    "tools/dependencies.py": "3c52ecf6c1925e9a85a27d7a610b6f9cb834431e5b526bdc1119897980aeca91",
+    "tools/media.py": "793d09e42599f2720b0b3cf408e32b1d08e36116cb01444a6eb500cd61c58612",
+    "tools/package.py": "821a70c470cb8549a0e12b6cf1d5ab3dec57fa75949434cdbe31338380392b86",
+    "tools/qualify.py": "b0530f4af9b1d8ddc64df33d7be578b31cc9bfea88963e207acbb5f203dd4c45",
+    "tools/regenerate_cpm3.py": "554937c71f553c13af20890d5962abe1093c878b037ed0917470db0f346e45a9",
+    "tools/serial_boot.py": "4947ca7fc955d6e2384f0cd4fb82216e1a7717039b2ffdb420da49bfce45f4d6",
+    "tools/system_contract.py": "389c065b0f8b922f7d69f544b93f50599354f866814e78f6819ca74ccc2a3737",
+    "tools/terminal.py": "d759f13428b9e2b533fc0e2bd8be7202d231a24274c48be8f049d55fe5ad36b6",
+    "tools/board_test.c": "99735599363646139008ccf8c77eff1f1600c4406a8c05160f5c3777b0ee9b63",
+    "tools/probe.c": "fda4a84982d5d2b8b3490f70577eee6d504df82b06af753352f3ff0531f00f72",
+    "tools/check_mame.lua": "b044cafaf391a8359a60daa7d679f8f4d45cde04da17d75baef0e9b2cdc1b61a"
+  },
+  "manifest": {
+    "protocol": "KP2",
+    "framing": "19200 8O1",
+    "hardware_executed": false,
+    "sha256": {
+      "boot.rom": "6133c46b1b31a8cc1d93d2428b716399c9c787d1ee6c5e3b785f67853e569633",
+      "platform.cim": "785ead96c438fd7668ff35bd5db0c74fc6f296ffabad3e360be51f4e5e0abf4d",
+      "kaypro.img": "4941cb2e782df0e812b538fbfb488fb26a2880f455819cb8ea095ce56a331d60"
+    },
+    "sizes": {
+      "boot.rom": 4096,
+      "platform.cim": 3618,
+      "kaypro.img": 819200
+    },
+    "memory": {
+      "platform_start": 49152,
+      "platform_end": 52770,
+      "platform_limit": 62976,
+      "stack_top": 63232,
+      "system_start": 40192,
+      "system_top": 49152,
+      "bootstrap_start": 32768
+    }
+  },
+  "dependencies": {
+    "dac-emulation": "697369bd675748ba88e92a878919be4109609dfc",
+    "8080-cosim": "a0a47d8da3329fe1ea78f6a0c6e8f46b0adfcd94",
+    "juku-common": "34a9b0f5842b2ae8162f37c6037a9cfbedf050ed"
+  }
+}

@@ -21,3 +21,11 @@ are host build tools, not guest BIOS code.
 No historical Kaypro ROM, character generator or keyboard firmware is
 included. MAME (BSD-3-Clause) and published schematics were consulted as
 independent references; no MAME source is copied into this project.
+
+ZXCC's extracted configure helpers are replaced during builds with the installed
+automake config.guess/config.sub for current host recognition. The distributed
+ZXCC source archive remains unmodified.
+
+The screen controls are implemented from the original Kaypro II user's guide;
+the physical video packing is derived from schematic 81-241 sheet 2C. No
+historical character or keyboard ROM is bundled.

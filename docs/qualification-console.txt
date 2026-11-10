@@ -4,9 +4,23 @@ A>TYPE HELLO.TXT
 CP/M Plus 3.1 on Kaypro 2
 
 A>DIR
-A: CPM3     SYS : CCP      COM : DIR      COM : TYPE     COM : PIP      COM 
-A: ERASE    COM : RENAME   COM : SHOW     COM : SET      COM : SUBMIT   COM 
-A: HELLO    TXT : TEST     SUB 
+A: CPM3     SYS : CCP      COM : DIR      COM : TYPE     COM : PIP      COM
+A: ERASE    COM : RENAME   COM : SHOW     COM : SET      COM : SUBMIT   COM
+A: HELLO    TXT : PATTERN  BIN : SCREEN   COM : KEYS     COM : TEST     SUB
+A>SCREEN
+<1A>Kaypro terminal qualification
+0123456789<08>X<0C>Y     TAB
+<ESC>="%addressed<18><ESC>=! <ESC>Einserted<ESC>=# <ESC>R<ESC>=% <ESC>Gabcdefgh<ESC>Aabcdefgh<ESC>=& erase this<ESC>=& <17><1E><0B><08><ESC>=( SCREEN PASS
+
+A>TYPE HELLO.TXT
+CP/M Plus 3.1 on Kaypro 2
+
+A>PIP BINCOPY.BIN=PATTERN.BIN
+
+A>KEYS
+KEYS START
+KEYS PASS
+
 A>PIP COPY.TXT=HELLO.TXT
 
 A>RENAME RENAMED.TXT=COPY.TXT

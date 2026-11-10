@@ -31,7 +31,7 @@ result = json.loads(lines[0])
 result['rom_sha256'] = hashlib.sha256(rom).hexdigest()
 result['mame_version'] = subprocess.check_output([a.mame, '-help'], text=True).splitlines()[0]
 result['hardware_executed'] = False
-result['scope'] = 'ROM reset, relocation, RAM bank switch, serial RX wait; synthetic character and keyboard ROMs'
+result['scope'] = 'ROM reset, relocation, RAM bank switch, serial RX wait and CRT banner; synthetic character and keyboard ROMs'
 (a.out / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
 assert r.returncode == 0 and result['pass'], r.stdout
 print(json.dumps(result, indent=2))

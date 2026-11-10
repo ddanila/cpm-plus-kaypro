@@ -1,0 +1,26 @@
+{
+  "complete": true,
+  "hardware_executed": false,
+  "rom_sha256": "6133c46b1b31a8cc1d93d2428b716399c9c787d1ee6c5e3b785f67853e569633",
+  "platform_sha256": "785ead96c438fd7668ff35bd5db0c74fc6f296ffabad3e360be51f4e5e0abf4d",
+  "image_sha256": "4941cb2e782df0e812b538fbfb488fb26a2880f455819cb8ea095ce56a331d60",
+  "host_sha256": "c06ffea07941554adeaf790cbfef9947a28dbdded574e90f11584996d2d0b285",
+  "emulator_sha256": "8b33da08d998315f6a783cf7bc6d4596337b2ff669bb10c41ccfbde30dfb7e7c",
+  "cases": [
+    "corrupt bootstrap rejected",
+    "production launcher started",
+    "CP/M Plus cold boot",
+    "TYPE HELLO.TXT",
+    "DIR",
+    "SCREEN",
+    "local keyboard command via SIO B",
+    "PIP COPY.TXT=HELLO.TXT",
+    "read-only write rejected without disk change",
+    "source image unchanged",
+    "CRT and host screen equivalence",
+    "keyboard service gap below one 300-baud character",
+    "corrupt disk reply retried successfully"
+  ],
+  "emulator_exit": 0,
+  "keyboard_max_service_gap_cycles": 34044
+}

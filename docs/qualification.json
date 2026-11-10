@@ -1,31 +1,38 @@
 {
   "complete": true,
   "hardware_executed": false,
-  "rom_sha256": "22444ec44d7d09dd1bceb1abff329691763a007a5370a5b8bbe7067c504e6260",
-  "platform_sha256": "503faf536009421da6b811f658a4b476e61aec5a812a6fa5b97ab81cf9b4c38a",
-  "image_sha256": "8ac7e6261ab38b5bd8257d068016d8bf0af163a49e516867db0d9c0147a37854",
-  "host_sha256": "c06ffea07941554adeaf790cbfef9947a28dbdded574e90f11584996d2d0b285",
-  "emulator_sha256": "2bfc529341800ab6c087fc36b2a54dad5b488676a18d825f5868821f7f094cf2",
-  "cases": [
-    "corrupt bootstrap rejected",
-    "checked serial upload",
-    "CP/M Plus cold boot",
-    "TYPE HELLO.TXT",
-    "DIR",
-    "PIP COPY.TXT=HELLO.TXT",
-    "independent disk readback",
-    "RENAME RENAMED.TXT=COPY.TXT",
-    "rename persisted",
-    "warm boot",
-    "TYPE RENAMED.TXT",
-    "host restart without guest reset",
-    "source image unchanged"
-  ],
-  "emulator_exit": 0,
-  "dependencies": {
-    "dac-emulation": "fbef312c2e6f9b46377412326a86eccddb972373",
-    "8080-cosim": "a0a47d8da3329fe1ea78f6a0c6e8f46b0adfcd94",
-    "juku-common": "34a9b0f5842b2ae8162f37c6037a9cfbedf050ed"
+  "protocol": "KP2",
+  "manifest": {
+    "protocol": "KP2",
+    "framing": "19200 8O1",
+    "hardware_executed": false,
+    "sha256": {
+      "boot.rom": "6133c46b1b31a8cc1d93d2428b716399c9c787d1ee6c5e3b785f67853e569633",
+      "platform.cim": "785ead96c438fd7668ff35bd5db0c74fc6f296ffabad3e360be51f4e5e0abf4d",
+      "kaypro.img": "4941cb2e782df0e812b538fbfb488fb26a2880f455819cb8ea095ce56a331d60"
+    },
+    "sizes": {
+      "boot.rom": 4096,
+      "platform.cim": 3618,
+      "kaypro.img": 819200
+    },
+    "memory": {
+      "platform_start": 49152,
+      "platform_end": 52770,
+      "platform_limit": 62976,
+      "stack_top": 63232,
+      "system_start": 40192,
+      "system_top": 49152,
+      "bootstrap_start": 32768
+    }
   },
-  "date": "2026-11-10"
+  "platforms": [
+    "macOS-26.6.2-arm64-arm-64bit",
+    "Linux-7.0.14-orbstack-00380-ga7e0a2dc9535-aarch64-with-glibc2.36"
+  ],
+  "reports": [
+    "qualification/macos-gate.json",
+    "qualification/linux-gate.json"
+  ],
+  "independent_mame": "mame-startup.json"
 }

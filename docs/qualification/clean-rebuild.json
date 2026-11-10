@@ -1,0 +1,27 @@
+{
+  "complete": true,
+  "manifest": {
+    "protocol": "KP2",
+    "framing": "19200 8O1",
+    "hardware_executed": false,
+    "sha256": {
+      "boot.rom": "6133c46b1b31a8cc1d93d2428b716399c9c787d1ee6c5e3b785f67853e569633",
+      "platform.cim": "785ead96c438fd7668ff35bd5db0c74fc6f296ffabad3e360be51f4e5e0abf4d",
+      "kaypro.img": "4941cb2e782df0e812b538fbfb488fb26a2880f455819cb8ea095ce56a331d60"
+    },
+    "sizes": {
+      "boot.rom": 4096,
+      "platform.cim": 3618,
+      "kaypro.img": 819200
+    },
+    "memory": {
+      "platform_start": 49152,
+      "platform_end": 52770,
+      "platform_limit": 62976,
+      "stack_top": 63232,
+      "system_start": 40192,
+      "system_top": 49152,
+      "bootstrap_start": 32768
+    }
+  }
+}

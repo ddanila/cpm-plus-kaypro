@@ -1,0 +1,18 @@
+{
+  "complete": true,
+  "hardware_executed": false,
+  "cases": [
+    "reject length 0000",
+    "reject length 0001",
+    "reject length 0035",
+    "reject length 3600",
+    "reject length ffff",
+    "truncated length timeout",
+    "truncated payload timeout",
+    "CRC failure",
+    "truncated CRC timeout",
+    "wrong execute command",
+    "execute timeout",
+    "garbage recovery and execution only after valid CRC and G"
+  ]
+}

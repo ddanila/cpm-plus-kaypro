@@ -35,6 +35,8 @@ int main(int argc,char **argv){
  fcntl(fd,F_SETFL,fcntl(fd,F_GETFL)|O_NONBLOCK);
  signal(SIGTERM,stopped);signal(SIGINT,stopped);
  unsigned service=getenv("KAYPRO_KEYSERVICE")?(unsigned)strtoul(getenv("KAYPRO_KEYSERVICE"),NULL,0):0;
+ unsigned boot_sync=getenv("KAYPRO_BOOT_SYNC")?(unsigned)strtoul(getenv("KAYPRO_BOOT_SYNC"),NULL,0):0;
+ unsigned last_boot_state=~0u;
  uint64_t last_service=0,max_gap=0,last_key=0;unsigned prior_pc=0;
  uint64_t start=ns(),next_rx=0,next_key=0,report=0;unsigned dropped=0,key_dropped=0,key_received=0;
  while(!stop){
@@ -56,6 +58,14 @@ int main(int argc,char **argv){
      last_service=m->cpu.cycles;
     }
    }else last_service=0;
+   /* Read-only observation at the ROM input loop, never register/RAM injection. */
+   if(boot_sync && m->cpu.cpu.pc==boot_sync){
+    unsigned state=((unsigned)m->ram[0x9002]<<16)|((unsigned)m->ram[0x9000]<<8)|m->ram[0x9001];
+    if(state!=last_boot_state){
+     fprintf(stderr,"monitor-ready mode=%u selector=%u wr4=%02x\n",m->ram[0x9002],m->ram[0x9000],m->ram[0x9001]);
+     last_boot_state=state;
+    }
+   }
    prior_pc=m->cpu.cpu.pc;
    kaypro2_run(m,1);
   }

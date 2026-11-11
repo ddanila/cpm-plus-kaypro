@@ -17,7 +17,7 @@ jobs:
           python-version: '3.12'
       - if: runner.os == 'Linux'
         run: |
-          if ! dpkg -s build-essential bison automake libncurses-dev >/dev/null 2>&1; then
+          if ! (command -v cc c++ make bison automake >/dev/null && dpkg -s libncurses-dev >/dev/null 2>&1); then
             sudo apt-get update
             sudo apt-get install -y build-essential bison automake libncurses-dev
           fi

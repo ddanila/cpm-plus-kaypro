@@ -16,7 +16,7 @@ def main():
     for fd in (wire,device,terminal,console):tty.setraw(fd)
     image=ROOT/'out/kaypro.img';disk=a.out/'disk.img';shutil.copyfile(image,disk)
     log=(a.out/'emulator.log').open('wb');hostlog=(a.out/'host-process.log').open('wb')
-    emu=subprocess.Popen([str(ROOT/'build/kaypro-probe'),str(ROOT/'build/boot.rom'),str(wire),str(a.out/'ram.bin'),str(keyboard_r)],pass_fds=(wire,keyboard_r),stderr=log,env=dict(os.environ,KAYPRO_KEYSERVICE=str(symbols(ROOT/'build/platform.lst')['keyservice'])))
+    emu=subprocess.Popen([str(ROOT/'build/kaypro-probe'),str(ROOT/'build/boot.rom'),str(wire),str(a.out/'ram.bin'),str(keyboard_r)],pass_fds=(wire,keyboard_r),stderr=log,env=dict(os.environ,KAYPRO_BOOT_SYNC=str(symbols(ROOT/'build/boot-stage.lst')['sync']),KAYPRO_KEYSERVICE=str(symbols(ROOT/'build/platform.lst')['keyservice'])))
     host=None;output=bytearray();cases=[]
     result=dict(complete=False,hardware_executed=False,framing='9600 8E2' if a.alternate else '19200 8O1',rom_sha256=digest(ROOT/'build/boot.rom'),platform_sha256=digest(ROOT/'build/platform.cim'),image_sha256=digest(image),host_sha256=digest(a.host),emulator_sha256=digest(ROOT/'build/kaypro-probe'),cases=cases)
     def exact(n,timeout=5):
@@ -42,10 +42,21 @@ def main():
             '--host',str(a.host),'--serial',os.ttyname(device),'--session',str(a.out/'session'),
             '--console-pty',os.ttyname(console)]+(['--baud','9600','--parity','E','--stop-bits','2'] if a.alternate else [])+(['--read-only'] if a.read_only else [])+(['--test-corrupt-read-reply-once'] if a.corrupt_read and mode=='boot' else []),stdout=hostlog,stderr=hostlog)
     try:
-        time.sleep(1)
+        def monitor_ready(mode,selector,wr4):
+            marker=f'monitor-ready mode={mode} selector={selector} wr4={wr4:02x}'
+            end=time.monotonic()+60
+            while marker not in (a.out/'emulator.log').read_text():
+                if emu.poll() is not None or time.monotonic()>=end:
+                    raise TimeoutError(f'ROM did not reach {marker}')
+                time.sleep(.02)
+        monitor_ready(0,15,0x45)
         if a.alternate:
-            for key in b'S11111123\x1b':
-                os.write(keyboard_w,bytes([key]));time.sleep(.3)
+            for key,mode,selector,wr4 in [
+                    ('S',1,15,0x45),('1',1,5,0x45),('1',1,6,0x45),
+                    ('1',1,7,0x45),('1',1,10,0x45),('1',1,12,0x45),
+                    ('1',1,14,0x45),('2',1,14,0x47),('3',1,14,0x4f),
+                    ('\x1b',0,14,0x4f)]:
+                os.write(keyboard_w,key.encode());monitor_ready(mode,selector,wr4)
             passed('ROM keyboard selects 9600 8E2')
         payload=(ROOT/'build/platform.cim').read_bytes()
         try:upload(device,payload,None,corrupt=True)

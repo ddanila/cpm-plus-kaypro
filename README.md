@@ -2,7 +2,9 @@
 
 Replacement 4 KiB **KP2 serial boot ROM**, nonbanked Digital Research CP/M Plus
 3.1, local CRT/keyboard and mirrored host console for PC003, Kaypro 2 S/N 139936.
-The external serial link supplies the virtual disk at **19200 8O1** throughout.
+The external serial link supplies the virtual disk, defaulting to **19200 8O1**.
+V3 offers local serial settings, diagnostics and explicit discovery; the selected
+configuration is carried into CP/M.
 This is a software-qualified hardware candidate. On PC003, the owner reports
 that V1 showed garbage at first power-on, then displayed the waiting banner
 after reset. Cold-start reliability remains unresolved; physical serial upload
@@ -44,7 +46,7 @@ The native800 image has 160 logical tracks × 40 records × 128 bytes; that is
 virtual disk geometry, not a physical floppy format. It includes CP/M utilities,
 HELLO.TXT, deterministic binary data and KEYS/SCREEN diagnostic transients.
 
-ROM **2.0.0** displays its version, serial settings, expected upload and host
+ROM **3.0.0** displays its version, serial settings, expected upload and host
 launcher instructions on the CRT. Its version is stored as readable ASCII in
 the ROM and recorded as `rom_version` in `build/manifest.json`.
 `src/rom-version.asm` is the single version source; bump major/minor/patch for
@@ -53,10 +55,54 @@ is independent of the unchanged **KP2** protocol and repository release tags.
 The first hardware candidate had no firmware version string.
 
 While waiting for the host, send ASCII `V` at 19200 8O1 to receive
-`KPV2.0.0\r\n`. This query is optional; the existing launcher still uses `K`
+`KPV3.0.0\r\n`. This query is optional; the existing launcher still uses `K`
 and receives `KP2`. See the [protocol contract](docs/protocol.md) for query scope.
 The original hardware-candidate release and its qualification reports describe
 the earlier ROM; rebuilding produces the new ROM and matched manifest.
+
+## V3 local monitor
+
+Boot starts automatically with nominal 19200 8O1, x16, no flow control. The
+CRT shows the version, selected registers, nominal/calculated rate and status.
+The 4096-byte image uses 3628 bytes and leaves 468 bytes free. V3 adds a short
+power-on settling delay and explicitly initializes both SIO channels; whether
+this resolves PC003's intermittent cold-start garbage still needs hardware tests.
+
+| Key | Action |
+| --- | --- |
+| S | Settings: 1 cycles baud, 2 parity, 3 stop bits, 4 x16/x32/x64 |
+| R / T | Receive hex/status or transmit the repeating test pattern |
+| L | Local loopback: O once, C continuously |
+| W | Loopback sweep through baud selectors, restoring prior settings afterward |
+| A | Bounded discovery scan across 9600/19200 selectors and N/O/E parity |
+| K | Display keyboard byte codes |
+| I / D | Reinitialize selected settings / restore defaults |
+| B / Escape | Return to Boot / cancel the current diagnostic |
+
+For local loopback, disconnect the host and bridge Kaypro DB25 pins 2–3.
+Loopback checks bytes, not the absolute baud rate. Counts are hexadecimal and
+wrap at 65536. Channel B remains independently configured for the keyboard.
+
+Host diagnostics use the same launcher:
+
+```sh
+python3 tools/serial_boot.py probe --serial /dev/cu.YOUR_RS232_ADAPTER
+python3 tools/serial_boot.py scan --serial /dev/cu.YOUR_RS232_ADAPTER
+python3 tools/serial_boot.py rx-test --serial /dev/cu.YOUR_RS232_ADAPTER
+python3 tools/serial_boot.py tx-test --serial /dev/cu.YOUR_RS232_ADAPTER
+```
+
+Select A on the Kaypro for scan, T for host rx-test, or R for host tx-test.
+Discovery uses CRC and nonce confirmation; a confirmed link stays locked.
+After scan, press **B** on the Kaypro before launching boot, then pass the
+reported settings as `--baud`, `--parity` and `--stop-bits`. For example,
+`--baud 9600 --parity E --stop-bits 2`. Use the same options when attaching.
+Probe/scan do not upload or execute code. Reports and captures go under `local/`.
+
+The highest selector is conventionally called 19200; the modeled 5.0688 MHz
+clock and /16 BRG divider calculate to 19800 at SIO x16. The screen distinguishes
+these values. Host scan tries both 19200 and 19800, plus 9600. Physical clock
+and adapter compatibility remain unverified; custom-rate requests may be rejected.
 
 ## Boot or reattach
 
@@ -104,9 +150,10 @@ python3 tools/check_mame.py --mame mame --out local/mame-check
 ```
 
 Output directories must be new. The complete gate runs the board/host tests,
-ROM fault cases, driver/terminal tests, production-launcher boot, real CP/M
+ROM fault cases, monitor loopback/discovery tests, driver/terminal tests, production-launcher boot, real CP/M
 file operations, timed keyboard input during disk writes, read-only rejection,
-corrupt-reply recovery, warm boot and host reattach. CRT and host character
+corrupt-reply recovery, warm boot and host reattach. A second writable run
+selects 9600 8E2 through the ROM keyboard and verifies configuration handoff. CRT and host character
 cells are compared independently; timing and receiver drops are recorded.
 
 ROM/CP/M integration starts at CPU reset, without OS RAM injection. Resident

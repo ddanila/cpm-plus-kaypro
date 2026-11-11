@@ -128,6 +128,7 @@ crcnox: dec e
 ; GENCPM's reverse 128-byte record order is retained on disk.
 loader: di
         ld sp,0f700h
+        call link_import
         call init
         ld bc,0
         call seldsk
@@ -361,5 +362,9 @@ sysentry: ds 32
 dirrecord: ds 128
 keyqueue: ds 128
         include "src/serial-common.asm"
+
+link_baud: db 15
+link_format: db 45h
+        include "src/link.asm"
 platform_end:
         end

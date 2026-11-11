@@ -6,7 +6,17 @@
 ; ROM ACK 06 then host 'G' executes. NAK 15 restarts. Polls time out.
         org 0
         di
+        ; About 200 ms at 2.5 MHz, without relying on RAM or peripherals.
+        ld de,19231
+settle: dec de
+        ld a,d
+        or e
+        jr nz,settle
         ld sp,0bff0h
+        ld a,03h            ; disable PIO interrupts
+        out (1dh),a
+        ld a,0c0h           ; preload bank/motors BEFORE enabling outputs
+        out (1ch),a
         ld a,0cfh           ; PIO A mode 3
         out (1dh),a
         ld a,08h            ; busy input; bank and other outputs

@@ -4,6 +4,8 @@ import binascii,json,os,pty,select,sys,tempfile,threading,time,tty
 from pathlib import Path
 from serial_boot import Port,bootstrap,upload,exact,write_all,validate
 from terminal import Screen,Keys
+from diagnostics import frame,query
+from serial_format import configure
 ROOT=Path(__file__).resolve().parents[1]
 def main():
  cases=[]
@@ -50,6 +52,21 @@ def main():
   try:write_all(w,data,time.monotonic()+10);t.join(10);assert bytes(received)==data
   finally:os.close(w);os.close(r)
   cases.append('partial writes preserve 256 KiB stream')
+  master,slave=pty.openpty();tty.setraw(slave)
+  try:
+   for parity in 'NOE':
+    for stop in (1,2):configure(slave,19800,parity,stop,simulated=True)
+   nonce=b'1234';reply=frame('Q',nonce,bytes([14,0x4f,3,0,0]),response=True)
+   def diagnostic_reply():
+    exact(master,11,time.monotonic()+2)
+    bad=reply[:-1]+bytes([reply[-1]^1])
+    stale=frame('Q',b'5678',bytes([14,0x4f,3,0,0]),response=True)
+    write_all(master,b'noise'+bad+stale+reply,time.monotonic()+2)
+   t=threading.Thread(target=diagnostic_reply);t.start()
+   info=query(slave,'Q',nonce);t.join(2)
+   assert info['version']==[3,0,0] and info['parity']=='E' and info['stop_bits']==2
+  finally:os.close(master);os.close(slave)
+  cases.append('diagnostic parser rejects noise, bad CRC and stale nonce; configurable PTY framing')
   validate(ROOT/'out/kaypro.img',ROOT/'build/platform.cim')
   bad=out/'platform.cim';bad.write_bytes(bytes(64))
   try:validate(ROOT/'out/kaypro.img',bad)

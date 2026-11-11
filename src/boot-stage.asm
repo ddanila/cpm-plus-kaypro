@@ -2,28 +2,8 @@
         org 08000h
         ld a,40h            ; RAM bank, motors off
         out (1ch),a
-        xor a
-        out (6),a           ; force pointer to WR0
-        ld a,18h
-        out (6),a
-        ld a,4
-        out (6),a
-        ld a,45h            ; x16, 8O1 (same framing as runtime)
-        out (6),a
-        ld a,3
-        out (6),a
-        ld a,0c1h
-        out (6),a
-        ld a,5
-        out (6),a
-        ld a,0eah
-        out (6),a
-        ld a,15
-        out (0),a
-        call local_init
-        ld hl,boot_waiting
-        call boot_print
-sync:   call rx
+        call monitor_init
+sync:   call monitor_poll
         jr c,sync
         cp 'V'
         jp z,query_version
@@ -89,6 +69,7 @@ noxor:  dec e
         jp c,fail
         cp 'G'
         jp nz,fail
+        call link_export
         jp 0c033h
 query_version:
         ld a,'K'
@@ -158,6 +139,7 @@ boot_print:
         ret z
         ld c,a
         call localout
+        call m_service
         inc hl
         jr boot_print
 keyboard_bell:
@@ -167,15 +149,13 @@ boot_waiting:
 rom_version:
         include "src/rom-version.asm"
         db 13,10
-        db 'Kaypro 2 / PC81-240A',13,10,13,10
-        db 'Serial A: 19200 baud, 8 data bits, odd parity, 1 stop bit',13,10
-        db 'Protocol: KP2 (CRC-checked platform upload)',13,10
-        db 'Expects: platform.cim, then CP/M Plus 3.1 from host disk',13,10,13,10
-        db 'On host: python3 tools/serial_boot.py boot',13,10
-        db '         --serial <port> --session <new-session>',13,10
-        db '         --host <jukuhost>',13,10,13,10
-        db 'Keep the host connected for console and virtual disk.',13,10
-        db 'This ROM boots from serial; no floppy diskette is needed.',13,10,13,10
-        db 'Waiting for host...',13,10,0
+        db 'Kaypro 2 PC81-240A | KP2 CRC upload -> CP/M Plus 3.1',13,10
+        db 'Host: python3 tools/serial_boot.py boot --serial <port>',13,10
+        db '      --session <new> --host <jukuhost>',13,10
+        db 'Keep host connected for console/disk. No diskette needed.',13,10
+        db 'S Settings R Receive T Transmit L Loopback W Sweep A Scan',13,10
+        db 'K Keyboard I Reinit D Defaults B Boot ESC Back/Stop',13,10,0
 boot_failed: db 'Transfer failed; waiting for retry',13,10,0
+        include "src/monitor.asm"
+        include "src/link.asm"
         include "src/console.asm"

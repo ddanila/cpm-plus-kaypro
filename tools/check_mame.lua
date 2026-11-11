@@ -15,8 +15,8 @@ emu.register_frame_done(function()
   local text=''
   for i=0,28 do text=text..string.char(mem:read_u8(0x3000+i)) end
   io:write_u8(0x1c,0x40)
-  local banner=text=='Kaypro serial boot ROM v2.0.0'
-  local ok=relocated and ram and banner and pc>=0x8000 and pc<0x8200
+  local banner=text=='Kaypro serial boot ROM v3.0.0'
+  local ok=relocated and ram and banner and pc>=0x8000 and pc<0x9000
   print(string.format('KAYPRO_STARTUP {"pass":%s,"pc":%d,"relocated":%s,"low_ram":%s,"crt_banner":%s}',tostring(ok),pc,tostring(relocated),tostring(ram),tostring(banner)))
   manager.machine:exit()
  end

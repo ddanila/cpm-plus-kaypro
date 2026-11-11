@@ -19,6 +19,7 @@ import termios
 import time
 import tty
 from terminal import Screen, Keys
+from serial_format import configure
 
 ROOT=Path(__file__).resolve().parents[1]
 BAUD=19200
@@ -49,7 +50,7 @@ def write_all(fd,data,deadline):
         view=view[n:]
 
 class Port:
-    def __init__(self,path):
+    def __init__(self,path,baud=19200,parity="O",stop_bits=1):
         self.fd=os.open(path,os.O_RDWR|os.O_NOCTTY|os.O_NONBLOCK)
         try:
             if not stat.S_ISCHR(os.fstat(self.fd).st_mode): raise ValueError('serial port must be a character device')
@@ -57,20 +58,8 @@ class Port:
             self.simulated=name.startswith(('/dev/pts/','/dev/ttys','/dev/pty'))
             if not self.simulated and hasattr(termios,'TIOCEXCL'):
                 fcntl.ioctl(self.fd,termios.TIOCEXCL)
-            attrs=termios.tcgetattr(self.fd)
-            self.original=attrs
-            attrs=termios.tcgetattr(self.fd)
-            attrs[0]=termios.IGNPAR
-            attrs[1]=attrs[3]=0
-            attrs[2]=termios.CS8|termios.CLOCAL|termios.CREAD
-            if not self.simulated: attrs[2]|=termios.PARENB|termios.PARODD
-            attrs[4]=attrs[5]=termios.B19200
-            attrs[6][termios.VMIN]=0;attrs[6][termios.VTIME]=0
-            termios.tcsetattr(self.fd,termios.TCSANOW,attrs)
-            actual=termios.tcgetattr(self.fd)
-            mask=termios.CSIZE|termios.PARENB|termios.PARODD|termios.CSTOPB|getattr(termios,'CRTSCTS',0)
-            if actual[4:6]!=attrs[4:6] or actual[2]&mask!=attrs[2]&mask:
-                raise RuntimeError('serial driver did not apply 19200 8O1')
+            self.original=termios.tcgetattr(self.fd)
+            self.settings=configure(self.fd,baud,parity,stop_bits,self.simulated)
         except BaseException:
             os.close(self.fd);raise
     def close(self):
@@ -132,11 +121,12 @@ def validate(image,platform):
     return data
 
 
-def host_command(host,serial,fd,disk,console,session,readonly=False):
+def host_command(host,serial,fd,disk,console,session,readonly=False,baud=19200,parity="O",stop_bits=1):
     stamp=str(time.time_ns())
     args=[str(Path(host).resolve()),'--machine','kaypro2','--resume-disk','--serial',serial,
           '--serial-fd',str(fd),'--volume',str(disk),'--console-pty',console,
           '--log',str(session/f'host-{stamp}.log'),'--capture',str(session/f'wire-{stamp}.bin')]
+    args += ['--disk-baud',str(baud),'--serial-parity',parity,'--serial-stop-bits',str(stop_bits)]
     if not readonly:args.append('--writable')
     return args
 
@@ -175,9 +165,15 @@ def run_host(args,fd,session,console_master=None):
 
 
 def main():
+    if len(sys.argv)>1 and sys.argv[1] in ('probe','scan','rx-test','tx-test'):
+        from diagnostics import main as diagnostics_main
+        return diagnostics_main()
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('mode',choices=['boot','attach'])
     p.add_argument('--serial',required=True)
+    p.add_argument('--baud',type=int,default=19200)
+    p.add_argument('--parity',choices=['N','O','E'],default='O')
+    p.add_argument('--stop-bits',type=int,choices=[1,2],default=1)
     p.add_argument('--session',type=Path,required=True)
     p.add_argument('--host',type=Path,default=ROOT.parent/'8080-cosim/build/jukuhost')
     p.add_argument('--platform',type=Path,default=ROOT/'build/platform.cim')
@@ -192,7 +188,7 @@ def main():
     if not a.console_pty and not sys.stdin.isatty():p.error('use --console-pty when not interactive')
     payload=validate(a.image,a.platform)
     session=a.session.resolve()
-    identity=dict(protocol='KP2',baud=19200,framing='8O1',platform_sha256=digest(a.platform),
+    identity=dict(protocol='KP2',baud=a.baud,framing=f'8{a.parity}{a.stop_bits}',platform_sha256=digest(a.platform),
                   source_sha256=digest(a.image),host_sha256=digest(a.host),read_only=a.read_only)
     if a.mode=='boot':
         session.mkdir(parents=True,exist_ok=False)
@@ -205,7 +201,7 @@ def main():
     lock=(session/'session.lock').open('a+b')
     try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     except BlockingIOError:lock.close();raise ValueError('session already in use')
-    try:port=Port(a.serial)
+    try:port=Port(a.serial,a.baud,a.parity,a.stop_bits)
     except BaseException:lock.close();raise
     master=slave=None
     result=dict(complete=False,simulated_serial=port.simulated,physical_qualification=False,execution_requested=False)
@@ -214,12 +210,29 @@ def main():
         else:
             master,slave=pty.openpty();tty.setraw(slave);console=os.ttyname(slave)
         if a.mode=='boot':
-            bootstrap(port.fd,payload,session,a.timeout)
+            if (a.baud,a.parity,a.stop_bits)!=(19200,'O',1):
+                from diagnostics import query
+                write_all(port.fd,b'V',time.monotonic()+3)
+                version=bytearray()
+                deadline=time.monotonic()+3
+                while len(version)<64 and not version.endswith(b'\n'):
+                    version.extend(exact(port.fd,1,deadline))
+                if not version.startswith(b'KPV3.'):
+                    raise ValueError('nondefault boot requires V3 in Boot mode; press B after scanning')
+                info=query(port.fd,'Q',timeout=3)
+                if info['version'][0]!=3 or not json.loads((a.platform.parent/'manifest.json').read_text()).get('serial_handoff'):
+                    raise ValueError('nondefault boot requires V3 and handoff-aware platform')
+                if info['parity']!=a.parity or info['stop_bits']!=a.stop_bits:
+                    raise ValueError('ROM framing differs from host options')
+                (session/'rom-info.json').write_text(json.dumps(info,indent=2)+'\n')
+                query(port.fd,'B',timeout=3)
+            transfer_timeout=max(a.timeout,4*len(payload)*(9+(a.parity!='N')+a.stop_bits)/a.baud+2)
+            bootstrap(port.fd,payload,session,transfer_timeout)
             # Same framing and descriptor: neither reset, flush nor reopen here.
             result['execution_requested']=True
             write_all(port.fd,b'G',time.monotonic()+a.timeout)
             termios.tcdrain(port.fd)
-        command=host_command(a.host,a.serial,port.fd,session/'disk.img',console,session,a.read_only)
+        command=host_command(a.host,a.serial,port.fd,session/'disk.img',console,session,a.read_only,a.baud,a.parity,a.stop_bits)
         if a.test_corrupt_read_reply_once:command.append('--test-corrupt-read-reply-once')
         result['host_exit']=run_host(command,port.fd,session,master)
         result['complete']=result['host_exit']==0

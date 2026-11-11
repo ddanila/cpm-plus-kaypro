@@ -44,23 +44,7 @@ write:  call serial_position
         jp N3WRITE
 
 remote_init:
-        ; Only reset channel A. Keep keyboard B and its clock intact.
-        ld a,18h
-        out (6),a
-        ld a,4
-        out (6),a
-        ld a,45h             ; x16, odd parity, one stop bit
-        out (6),a
-        ld a,3
-        out (6),a
-        ld a,0c1h           ; eight data bits, receiver enabled
-        out (6),a
-        ld a,5
-        out (6),a
-        ld a,0eah           ; eight bits, TX, DTR and RTS
-        out (6),a
-        ld a,15             ; 8116 FT / SIO A: 19200 baud
-        out (0),a
+        call link_init
         ld hl,remote_state
         ld de,remote_state+1
         ld bc,remote_state_end-remote_state-1

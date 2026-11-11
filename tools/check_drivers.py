@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Execute resident guest drivers; compare against an independent screen model."""
+import binascii
 import ctypes as C
 import json
 from pathlib import Path
@@ -9,7 +10,7 @@ from terminal import Screen,Keys
 ROOT=Path(__file__).resolve().parents[1]
 def symbols(file):
     return {m[1]:int(m[2],16) for line in Path(file).read_text().splitlines()
-            if (m:=re.fullmatch(r'(\w+)\s+([0-9A-F]{4})\s+\d+',line))}
+            if (m:=re.fullmatch(r'(\w+)\s+([0-9A-F]{1,4})\s+\d+',line))}
 def main():
     lib=C.CDLL(str(ROOT/'build'/('board-test.dylib' if sys.platform=='darwin' else 'board-test.so')))
     lib.board_new.restype=C.c_void_p
@@ -30,6 +31,19 @@ def main():
     def peek(name):return lib.board_peek(m,sy[name])
     model=Screen();cases=[]
     try:
+        # Handoff is accepted only with valid signature, version, CRC and framing.
+        def handoff(selector=14,wr4=0x4f,version=1):
+            body=b'KP3C'+bytes([version,selector,wr4])+bytes(7)
+            return body+binascii.crc_hqx(body,65535).to_bytes(2,'big')
+        for packet,expected in [(handoff(),(14,0x4f)),
+                (handoff()[:-1]+b'\x00',(15,0x45)),
+                (handoff(version=2),(15,0x45)),
+                (handoff(selector=16),(15,0x45)),
+                (handoff(wr4=0x40),(15,0x45))]:
+            lib.board_load(m,0x9cf0,packet,len(packet));call('link_import')
+            assert (peek('link_baud'),peek('link_format'))==expected
+            if expected==(14,0x4f):assert lib.board_peek(m,0x9cf0)==0
+        cases.append('valid serial handoff consumed; corrupt or invalid handoff defaults safely')
         # Bank state must be restored by video routines; all lower RAM is a canary.
         for a in range(0x4000):lib.board_poke(m,a,(a*37+13)&255)
         call('local_init');call('keyboard_init')

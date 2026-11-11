@@ -18,7 +18,7 @@ copied beneath itself as on the ordinary Robotron.
 
 The timing and SIO register model is adapted from the existing Robotron
 `peripherals.h` implementation; the Z80 and tracing code are shared directly.
-SIO interrupts, modem transitions, bit-level framing/error injection, floppy
+SIO interrupts, automatic modem transitions, bit-level framing, floppy
 controller, keyboard MCU firmware, CRT sync waveforms and PIO handshakes are
 not implemented. The deterministic renderer produces 560×240 monochrome pixels
 from a caller-supplied 2048-byte character ROM and explicit blink phase.
@@ -82,3 +82,13 @@ are explicitly identified; no stock or PC003 character-ROM image is included.
 Channel B uses the same three-byte FIFO API as A. The CP/M qualification probe
 injects completed keyboard bytes on an independent 300-baud 8N1 schedule;
 its report distinguishes receiver rejection from software queue overflow.
+
+## V3 baud calculation and error diagnostics
+
+The BRG model uses the divider table in [MAME com8116.cpp](https://github.com/mamedev/mame/blob/master/src/devices/machine/com8116.cpp),
+with the 5.0688 MHz clock configured in [MAME kaypro.cpp](https://github.com/mamedev/mame/blob/master/src/mame/kaypro/kaypro.cpp).
+Selector 15 divides by 16; another x16 SIO divider yields 19800, despite the
+traditional 19200 label. Selector 14 yields 9600. This is a model calculation,
+not a measurement of PC003. V3 displays both nominal and calculated rates.
+The test API can explicitly inject RR1 errors and change RR0 modem bits;
+this verifies diagnostic software, not analog serial sampling or real parity.

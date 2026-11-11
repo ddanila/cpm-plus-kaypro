@@ -1,7 +1,7 @@
 # KP2 bootstrap and memory contract
 
 External SIO A uses ports 04/06, 8116 selector 15 at port 00, x16 clocking,
-19200 baud, eight data bits, odd parity, one stop bit, no software/hardware flow
+nominal 19200 baud, eight data bits, odd parity, one stop bit, no software/hardware flow
 control. Keyboard SIO B is independently initialized at 300 8N1 through 05/07
 and baud port 0C. KP1's 8N1 bootstrap is intentionally incompatible.
 
@@ -9,7 +9,7 @@ and baud port 0C. KP1's 8N1 bootstrap is intentionally incompatible.
 
 In the initial synchronization state, send one ASCII `V` byte (56 hex).
 The ROM returns ASCII `KPV<major>.<minor>.<patch>\r\n`, currently
-`KPV2.0.0\r\n`, then resumes waiting for `K` or another `V`.
+`KPV3.0.0\r\n`, then resumes waiting for `K` or another `V`.
 The response uses the same embedded version string as the CRT banner.
 Read through LF before starting the normal boot handshake. No query is required
 to boot; `KP2` identifies the wire protocol, not the firmware revision.
@@ -61,3 +61,25 @@ not reach underlying RAM. The ROM relocates before banking. Display routines
 use a private resident stack, preserve the caller's stack/registers and prior
 interrupt-enable state, restore the bank latch and leave other PIO bits intact.
 All memory bounds and artifact hashes are checked by `build/manifest.json`.
+
+## V3 diagnostics and handoff
+
+The default boot stream stays KP2. Diagnostic frames use `~D3`, one payload
+length byte (zero for requests), a command byte, a four-byte nonce, and CCITT
+CRC high/low over length through payload. Responses start `~R3` with payload
+length 5, echoed command/nonce, and payload selector, SIO WR4, major/minor/patch.
+Q reports settings. In explicitly selected scan mode, P reserves the current
+profile; matching C confirms it. Repeated C is safe after a lost reply. An
+unconfirmed reservation expires; a confirmed profile does not time out.
+B returns to the KP2 boot parser with current settings. X cancels an unconfirmed
+scan and restores prior settings; its reply is at the restored rate. Neither
+command uploads or executes. K/G are ignored while scanning or locked. Press B
+locally before launching a normal boot. Host nondefault boot first requires V3's
+ASCII version reply, avoiding diagnostic nonce traffic to an unknown legacy ROM.
+
+The ROM exports 16 bytes at 9CF0 on accepted G: ASCII KP3C, schema 1, baud
+selector, WR4, seven zero bytes, and CCITT CRC high/low over the first 14 bytes.
+The platform validates signature, version, CRC and settings before initialization;
+invalid/missing handoff uses defaults. Valid handoff is consumed once. Warm boot
+retains the resident configuration. Attach identity includes baud and framing.
+Diagnostic workspace is 9000–92FF, separate from relocated code below 9000.

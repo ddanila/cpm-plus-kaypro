@@ -31,3 +31,6 @@ unsigned board_tx(kaypro2 *m,void *p){(void)m;memcpy(p,txdata,ntx);unsigned n=nt
 unsigned board_pc(kaypro2 *m){return m->cpu.cpu.pc;}
 
 int board_call(kaypro2 *m,unsigned addr,unsigned bc){return board_call_stack(m,addr,bc,0xf700);}
+unsigned board_receive_status(kaypro2 *m,unsigned n,unsigned v,unsigned errors){return kaypro2_receive_status(m,n,v,errors);}
+void board_modem(kaypro2 *m,unsigned n,unsigned bits){kaypro2_modem(m,n,bits);}
+unsigned board_wr(kaypro2 *m,unsigned n,unsigned r){return m->sio[n&1].wr[r&7];}

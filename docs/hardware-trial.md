@@ -1,6 +1,6 @@
 # PC003 first hardware trial
 
-Status: **not performed**. Software qualification is a prerequisite, not proof
+Status: **V3 hardware trial not performed**. Software qualification is a prerequisite, not proof
 of electrical timing or compatibility with this particular board.
 
 ## Record equipment and preserve the original
@@ -52,7 +52,10 @@ visible screen; the cause of this discrepancy is not yet established. ROM
 1. **Reset/startup:** install the candidate and observe the CRT waiting banner.
    If absent or corrupt, stop before sending a payload; check board/ROM identity,
    jumper settings and readback. Restore the original ROM if needed.
-2. **Bootstrap:** run the documented launcher at 19200 8O1. Require KP2 and a
+2. **Diagnostics/bootstrap:** check V3 version, local keyboard, receive display
+   and disconnected local loopback first. Start with 19200 8O1; use the V3
+   monitor and logged host scan if needed, then press B and run the launcher
+   with the selected settings. Require KP2 and a
    checked upload. On repeated failure, preserve logs and reset; do not change
    baud or EPROM wiring speculatively within the same recorded run.
 3. **CP/M:** require the sign-on and A> prompt on both CRT and host. Record both.
@@ -69,3 +72,7 @@ Never overwrite a failed session with a new attempt. Restore the untouched
 original ROM and recorded jumper settings for rollback.
 
 Only a completed physical campaign may change hardware qualification to true.
+
+V3 includes a settling delay and explicit SIO reinitialization. Neither is a
+physically established fix yet. Keep cold-start/reset statistics (including CRT
+warm-up), the ROM hash and all host settings with the next hardware results.

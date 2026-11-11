@@ -10,7 +10,7 @@ from check_drivers import symbols
 ROOT=Path(__file__).resolve().parents[1]
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--host',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--read-only',action='store_true');p.add_argument('--corrupt-read',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--host',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--read-only',action='store_true');p.add_argument('--corrupt-read',action='store_true');p.add_argument('--alternate',action='store_true',help='select 9600 8E2 using the ROM keyboard');a=p.parse_args()
     a.out.mkdir(parents=True,exist_ok=False)
     wire,device=pty.openpty();terminal,console=pty.openpty();keyboard_r,keyboard_w=os.pipe()
     for fd in (wire,device,terminal,console):tty.setraw(fd)
@@ -18,7 +18,7 @@ def main():
     log=(a.out/'emulator.log').open('wb');hostlog=(a.out/'host-process.log').open('wb')
     emu=subprocess.Popen([str(ROOT/'build/kaypro-probe'),str(ROOT/'build/boot.rom'),str(wire),str(a.out/'ram.bin'),str(keyboard_r)],pass_fds=(wire,keyboard_r),stderr=log,env=dict(os.environ,KAYPRO_KEYSERVICE=str(symbols(ROOT/'build/platform.lst')['keyservice'])))
     host=None;output=bytearray();cases=[]
-    result=dict(complete=False,hardware_executed=False,rom_sha256=digest(ROOT/'build/boot.rom'),platform_sha256=digest(ROOT/'build/platform.cim'),image_sha256=digest(image),host_sha256=digest(a.host),emulator_sha256=digest(ROOT/'build/kaypro-probe'),cases=cases)
+    result=dict(complete=False,hardware_executed=False,framing='9600 8E2' if a.alternate else '19200 8O1',rom_sha256=digest(ROOT/'build/boot.rom'),platform_sha256=digest(ROOT/'build/platform.cim'),image_sha256=digest(image),host_sha256=digest(a.host),emulator_sha256=digest(ROOT/'build/kaypro-probe'),cases=cases)
     def exact(n,timeout=5):
         data=bytearray();end=time.monotonic()+timeout
         while len(data)<n:
@@ -40,9 +40,13 @@ def main():
     def start_host(mode='attach'):
         return subprocess.Popen([sys.executable,str(ROOT/'tools/serial_boot.py'),mode,
             '--host',str(a.host),'--serial',os.ttyname(device),'--session',str(a.out/'session'),
-            '--console-pty',os.ttyname(console)]+(['--read-only'] if a.read_only else [])+(['--test-corrupt-read-reply-once'] if a.corrupt_read and mode=='boot' else []),stdout=hostlog,stderr=hostlog)
+            '--console-pty',os.ttyname(console)]+(['--baud','9600','--parity','E','--stop-bits','2'] if a.alternate else [])+(['--read-only'] if a.read_only else [])+(['--test-corrupt-read-reply-once'] if a.corrupt_read and mode=='boot' else []),stdout=hostlog,stderr=hostlog)
     try:
         time.sleep(1)
+        if a.alternate:
+            for key in b'S11111123\x1b':
+                os.write(keyboard_w,bytes([key]));time.sleep(.3)
+            passed('ROM keyboard selects 9600 8E2')
         payload=(ROOT/'build/platform.cim').read_bytes()
         try:upload(device,payload,None,corrupt=True)
         except ValueError as e:assert 'rejected' in str(e)
@@ -88,6 +92,9 @@ def main():
         try:
             if emu.returncode:result['complete']=False
             if result['complete']:
+                logtext=(a.out/'emulator.log').read_text()
+                assert ('baud=9600 wr4=4f' if a.alternate else 'baud=19800 wr4=45') in logtext
+                passed('selected serial configuration retained by CP/M')
                 model=Screen();model.feed(output)
                 ram=(a.out/'ram.bin').read_bytes()
                 sy=symbols(ROOT/'build/platform.lst')

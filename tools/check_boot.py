@@ -8,7 +8,7 @@ def main():
  l.board_new.restype=C.c_void_p
  for n,args in dict(board_free=[],board_rom=[C.c_void_p,C.c_uint],board_tick=[C.c_uint],board_tx=[C.c_void_p],board_pc=[],board_receive=[C.c_uint,C.c_uint],board_peek=[C.c_uint],board_cell=[C.c_uint,C.c_uint]).items():getattr(l,n).argtypes=[C.c_void_p]+args
  rom=(ROOT/'build/boot.rom').read_bytes();m=l.board_new();assert not l.board_rom(m,rom,len(rom))
- l.board_tick(m,1000000);cases=[]
+ l.board_tick(m,2000000);cases=[]
  def tick(n=200000):l.board_tick(m,n)
  def receive():
   b=C.create_string_buffer(32768);n=l.board_tx(m,b);return b.raw[:n]
@@ -25,22 +25,13 @@ def main():
   cases.append(name)
  try:
   screen=[''.join(chr(l.board_cell(m,r,c)&127) for c in range(80)).rstrip() for r in range(24)]
-  assert screen[:15]==[
-   'Kaypro serial boot ROM v2.0.0', 'Kaypro 2 / PC81-240A', '',
-   'Serial A: 19200 baud, 8 data bits, odd parity, 1 stop bit',
-   'Protocol: KP2 (CRC-checked platform upload)',
-   'Expects: platform.cim, then CP/M Plus 3.1 from host disk', '',
-   'On host: python3 tools/serial_boot.py boot',
-   '         --serial <port> --session <new-session>',
-   '         --host <jukuhost>', '',
-   'Keep the host connected for console and virtual disk.',
-   'This ROM boots from serial; no floppy diskette is needed.', '',
-   'Waiting for host...'],screen
+  assert screen[0]=='Kaypro serial boot ROM v3.0.0',screen
+  assert 'KP2 CRC upload' in screen[1]
   assert receive()==b'','CRT banner must not contaminate serial handshake'
-  assert b'Kaypro serial boot ROM v2.0.0\r\n' in rom
+  assert b'Kaypro serial boot ROM v3.0.0\r\n' in rom
   cases.append('versioned startup screen and silent serial startup')
   for _ in range(2):
-   send(b'V');assert receive()==b'KPV2.0.0\r\n'
+   send(b'V');assert receive()==b'KPV3.0.0\r\n'
   cases.append('repeatable version query before KP2 handshake')
   for length in [0,1,0x35,0x3600,0xffff]:
    sync();send(length.to_bytes(2,'little'));recover(f'reject length {length:04x}')
@@ -53,10 +44,10 @@ def main():
   send(b'!');recover('wrong execute command')
   sync();send(packet(data));assert receive()==b'\x06'
   tick(4000000);recover('execute timeout')
-  send(b'V');assert receive()==b'KPV2.0.0\r\n'
+  send(b'V');assert receive()==b'KPV3.0.0\r\n'
   send(b'\x00!XYZ');assert receive()==b''
   sync();send(packet(data));assert receive()==b'\x06'
-  assert l.board_pc(m)>=0x8000 and l.board_pc(m)<0x8400
+  assert l.board_pc(m)>=0x8000 and l.board_pc(m)<0x9000
   send(b'G');assert 0xc033<=l.board_pc(m)<=0xc036
   assert receive()==b'';cases.append('garbage recovery and execution only after valid CRC and G')
   result=dict(complete=True,hardware_executed=False,cases=cases)

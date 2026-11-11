@@ -41,6 +41,14 @@ not require opening or adjusting the CRT's high-voltage section.
 
 ## Staged trial and stop points
 
+First owner observation (2026-11-11, V1): initial power-on showed a screen full
+of garbage; reset produced the waiting-for-host banner. No physical serial or
+CP/M result has been reported. Record cold-start versus reset behavior on the
+next trial, including whether garbage persists after CRT warm-up and whether
+reset consistently recovers. The ROM initializes console state and clears the
+visible screen; the cause of this discrepancy is not yet established. ROM
+2.0.0's version/banner/query changes are not a verified cold-start fix.
+
 1. **Reset/startup:** install the candidate and observe the CRT waiting banner.
    If absent or corrupt, stop before sending a payload; check board/ROM identity,
    jumper settings and readback. Restore the original ROM if needed.

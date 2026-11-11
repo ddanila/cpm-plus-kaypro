@@ -3,8 +3,10 @@
 Replacement 4 KiB **KP2 serial boot ROM**, nonbanked Digital Research CP/M Plus
 3.1, local CRT/keyboard and mirrored host console for PC003, Kaypro 2 S/N 139936.
 The external serial link supplies the virtual disk at **19200 8O1** throughout.
-This is a software-qualified hardware candidate; **PC003 has not been booted
-with it**. Physical floppy support is deferred.
+This is a software-qualified hardware candidate. On PC003, the owner reports
+that V1 showed garbage at first power-on, then displayed the waiting banner
+after reset. Cold-start reliability remains unresolved; physical serial upload
+and CP/M boot have not yet been reported. Physical floppy support is deferred.
 
 The guest filesystem loader, BIOS and session approach reuse cpm-plus-1715.
 Juku's N4 console and NetDisk v3 guest code is included directly from the pinned

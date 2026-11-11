@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fail the build on memory-map violations; emit a matched-artifact manifest."""
-import hashlib,json
+import hashlib,json,re
 from pathlib import Path
 from check_drivers import symbols
 ROOT=Path(__file__).resolve().parents[1]
@@ -10,12 +10,14 @@ def main():
     rom=(ROOT/'build/boot.rom').read_bytes()
     platform=(ROOT/'build/platform.cim').read_bytes()
     assert len(rom)==4096
+    version=re.findall(rb'Kaypro serial boot ROM v(\d+\.\d+\.\d+)\r\n',rom)
+    assert len(version)==1,'ROM must contain exactly one firmware version banner'
     assert 0x36<=len(platform)<=0x35ff
     assert len(platform)==sy['platform_end']-0xc000
     assert len((ROOT/'build/boot-stage.cim').read_bytes())<0x1d00
     assert sy['loader']>=0xc03c and platform[0x33]==0xc3
     files={'boot.rom':ROOT/'build/boot.rom','platform.cim':ROOT/'build/platform.cim','kaypro.img':ROOT/'out/kaypro.img'}
-    manifest=dict(protocol='KP2',framing='19200 8O1',hardware_executed=False,
+    manifest=dict(rom_version=version[0].decode('ascii'),protocol='KP2',framing='19200 8O1',hardware_executed=False,
       sha256={k:hashlib.sha256(p.read_bytes()).hexdigest() for k,p in files.items()},
       sizes={k:p.stat().st_size for k,p in files.items()},
       memory=dict(platform_start=0xc000,platform_end=sy['platform_end'],platform_limit=0xf600,

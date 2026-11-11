@@ -42,6 +42,20 @@ The native800 image has 160 logical tracks × 40 records × 128 bytes; that is
 virtual disk geometry, not a physical floppy format. It includes CP/M utilities,
 HELLO.TXT, deterministic binary data and KEYS/SCREEN diagnostic transients.
 
+ROM **2.0.0** displays its version, serial settings, expected upload and host
+launcher instructions on the CRT. Its version is stored as readable ASCII in
+the ROM and recorded as `rom_version` in `build/manifest.json`.
+`src/rom-version.asm` is the single version source; bump major/minor/patch for
+incompatible firmware changes, features, or fixes respectively. This numbering
+is independent of the unchanged **KP2** protocol and repository release tags.
+The first hardware candidate had no firmware version string.
+
+While waiting for the host, send ASCII `V` at 19200 8O1 to receive
+`KPV2.0.0\r\n`. This query is optional; the existing launcher still uses `K`
+and receives `KP2`. See the [protocol contract](docs/protocol.md) for query scope.
+The original hardware-candidate release and its qualification reports describe
+the earlier ROM; rebuilding produces the new ROM and matched manifest.
+
 ## Boot or reattach
 
 Complete the [bench checklist](docs/hardware-trial.md) before using a physical

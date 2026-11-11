@@ -5,6 +5,23 @@ External SIO A uses ports 04/06, 8116 selector 15 at port 00, x16 clocking,
 control. Keyboard SIO B is independently initialized at 300 8N1 through 05/07
 and baud port 0C. KP1's 8N1 bootstrap is intentionally incompatible.
 
+## Firmware version query (ROM 2.0.0 and later)
+
+In the initial synchronization state, send one ASCII `V` byte (56 hex).
+The ROM returns ASCII `KPV<major>.<minor>.<patch>\r\n`, currently
+`KPV2.0.0\r\n`, then resumes waiting for `K` or another `V`.
+The response uses the same embedded version string as the CRT banner.
+Read through LF before starting the normal boot handshake. No query is required
+to boot; `KP2` identifies the wire protocol, not the firmware revision.
+
+The query is also available after a failed transfer returns to synchronization.
+It is not recognized within a transfer, while waiting for `G`, or once the
+platform is running. An older, unversioned ROM ignores `V`; a query timeout
+therefore means version unavailable, not necessarily a faulty ROM. The startup
+screen is CRT-only and sends no unsolicited text onto the binary serial link.
+
+## Bootstrap
+
 | Direction | Bytes | Meaning |
 | --- | --- | --- |
 | Host → ROM | `K` | Synchronize |

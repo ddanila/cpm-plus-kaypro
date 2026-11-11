@@ -13,10 +13,10 @@ emu.register_frame_done(function()
   -- Inspect video via real bank register, then restore it before further ticks.
   io:write_u8(0x1c,0xc0)
   local text=''
-  for i=0,39 do text=text..string.char(mem:read_u8(0x3000+i)) end
+  for i=0,28 do text=text..string.char(mem:read_u8(0x3000+i)) end
   io:write_u8(0x1c,0x40)
-  local banner=text=='Kaypro KP2: waiting for host (19200 8O1)'
-  local ok=relocated and ram and banner and pc>=0x8000 and pc<0x8140
+  local banner=text=='Kaypro serial boot ROM v2.0.0'
+  local ok=relocated and ram and banner and pc>=0x8000 and pc<0x8200
   print(string.format('KAYPRO_STARTUP {"pass":%s,"pc":%d,"relocated":%s,"low_ram":%s,"crt_banner":%s}',tostring(ok),pc,tostring(relocated),tostring(ram),tostring(banner)))
   manager.machine:exit()
  end

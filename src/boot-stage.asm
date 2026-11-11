@@ -25,6 +25,8 @@
         call boot_print
 sync:   call rx
         jr c,sync
+        cp 'V'
+        jp z,query_version
         cp 'K'
         jr nz,sync
         ld a,'K'
@@ -34,23 +36,23 @@ sync:   call rx
         ld a,'2'
         call tx
         call rx
-        jr c,fail
+        jp c,fail
         ld e,a
         call rx
-        jr c,fail
+        jp c,fail
         ld d,a
         cp 36h
-        jr nc,fail
+        jp nc,fail
         or a
         jr nz,length_ok
         ld a,e
         cp 36h              ; minimum contains C033 jump instruction
-        jr c,fail
+        jp c,fail
 length_ok:
         ld hl,0c000h
         ld bc,0ffffh
 receive:call rx
-        jr c,fail
+        jp c,fail
         ld (hl),a
         inc hl
         xor b
@@ -74,20 +76,37 @@ noxor:  dec e
         or e
         jr nz,receive
         call rx
-        jr c,fail
+        jp c,fail
         cp b
-        jr nz,fail
+        jp nz,fail
         call rx
-        jr c,fail
+        jp c,fail
         cp c
-        jr nz,fail
+        jp nz,fail
         ld a,6
         call tx
         call rx
-        jr c,fail
+        jp c,fail
         cp 'G'
-        jr nz,fail
+        jp nz,fail
         jp 0c033h
+query_version:
+        ld a,'K'
+        call tx
+        ld a,'P'
+        call tx
+        ld a,'V'
+        call tx
+        ld hl,rom_version
+version_byte:
+        ld a,(hl)
+        call tx
+        inc hl
+        cp 13
+        jr nz,version_byte
+        ld a,10
+        call tx
+        jp sync
 fail:   push hl
         ld hl,boot_failed
         call boot_print
@@ -143,6 +162,20 @@ boot_print:
         jr boot_print
 keyboard_bell:
         ret
-boot_waiting: db 'Kaypro KP2: waiting for host (19200 8O1)',13,10,0
+boot_waiting:
+        db 'Kaypro serial boot ROM v'
+rom_version:
+        include "src/rom-version.asm"
+        db 13,10
+        db 'Kaypro 2 / PC81-240A',13,10,13,10
+        db 'Serial A: 19200 baud, 8 data bits, odd parity, 1 stop bit',13,10
+        db 'Protocol: KP2 (CRC-checked platform upload)',13,10
+        db 'Expects: platform.cim, then CP/M Plus 3.1 from host disk',13,10,13,10
+        db 'On host: python3 tools/serial_boot.py boot',13,10
+        db '         --serial <port> --session <new-session>',13,10
+        db '         --host <jukuhost>',13,10,13,10
+        db 'Keep the host connected for console and virtual disk.',13,10
+        db 'This ROM boots from serial; no floppy diskette is needed.',13,10,13,10
+        db 'Waiting for host...',13,10,0
 boot_failed: db 'Transfer failed; waiting for retry',13,10,0
         include "src/console.asm"

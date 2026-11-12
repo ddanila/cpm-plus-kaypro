@@ -9,6 +9,8 @@ sync:   call monitor_poll
         jp z,query_version
         cp 'K'
         jr nz,sync
+        ld hl,boot_receiving
+        call boot_print
         ld a,'K'
         call tx
         ld a,'P'
@@ -63,6 +65,8 @@ noxor:  dec e
         jp c,fail
         cp c
         jp nz,fail
+        ld hl,boot_ready
+        call boot_print
         ld a,6
         call tx
         call rx
@@ -109,9 +113,20 @@ rxwait: in a,(6)
         pop de
         scf
         ret
-rxready:in a,(4)
+rxready:ld a,1
+        out (6),a
+        in a,(6)
+        and 70h             ; parity, overrun or framing error invalidates upload
+        jr nz,rxerror
+        in a,(4)
         pop de
         or a
+        ret
+rxerror:in a,(4)            ; consume errored byte before resetting sticky flags
+        ld a,30h
+        out (6),a
+        pop de
+        scf
         ret
 tx:     push af
         push de
@@ -150,12 +165,12 @@ rom_version:
         include "src/rom-version.asm"
         db 13,10
         db 'Kaypro 2 PC81-240A | KP2 CRC upload -> CP/M Plus 3.1',13,10
-        db 'Host: python3 tools/serial_boot.py boot --serial <port>',13,10
-        db '      --session <new> --host <jukuhost>',13,10
+        db 'Waiting for host. Start serial_boot.py auto on the host.',13,10
         db 'Keep host connected for console/disk. No diskette needed.',13,10
-        db 'S Settings R Receive T Transmit L Loopback W Sweep A Scan',13,10
-        db 'K Keyboard I Reinit D Defaults B Boot ESC Back/Stop',13,10,0
-boot_failed: db 'Transfer failed; waiting for retry',13,10,0
+        db '? Diagnostics/settings   ESC Return to boot',13,10,0
+boot_receiving: db 27,'=',52,32,24,'Receiving platform; checking CRC...',0
+boot_ready: db 27,'=',52,32,24,'CRC OK; waiting for host execute command.',0
+boot_failed: db 27,'=',52,32,24,'Transfer failed; waiting for host retry.',0
         include "src/monitor.asm"
         include "src/link.asm"
         include "src/console.asm"

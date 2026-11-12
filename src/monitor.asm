@@ -47,8 +47,6 @@ monitor_init:
         ld c,7
         otir
         call local_init
-        ld hl,boot_waiting
-        call boot_print
         jp m_show
 m_keyboard_init: db 4,44h,1,0,3,0c1h,5,0eah
 ; Approximately 1ms; diagnostics poll keys every iteration, including waits.
@@ -141,6 +139,9 @@ mc_i:   cp 'I'
         ld a,c
         cp 'D'
         jr z,mc_init
+        cp '?'
+        ld b,1
+        jr z,mc_mode
         cp 'S'
         ld b,1
         jr z,mc_mode
@@ -457,6 +458,12 @@ m_prefix:db 55h,0aah,0,0ffh
 m_pass: db ' PASS ',0
 m_fail: db ' FAIL ',0
 m_show:
+        call local_init
+        ld hl,boot_waiting
+        call boot_print
+        ld a,(m_mode)
+        or a
+        jp z,m_description
         ld hl,m_home
         call boot_print
         ld a,(m_mode)
@@ -474,7 +481,9 @@ m_show:
         ret
 m_home: db 27,'=',40,32,24,'Mode ',0
 m_configtext:db '  Shadows BAUD/WR4 (WR1=00 WR3=C1 WR5=EA): ',0
-m_options:db 13,10,24,'Settings: 1 Baud 2 N/O/E 3 Stop 4 Clock. B Boot ESC Back',13,10
+m_options:db 13,10,24,'S Settings R Receive T Transmit L Loopback W Sweep A Scan',13,10
+        db 24,'K Keyboard I Reinit D Defaults B Boot ESC Back/Stop',13,10
+        db 24,'Settings: 1 Baud 2 N/O/E 3 Stop 4 Clock. B Boot ESC Back',13,10
         db 24,'Loop: disconnect host, bridge DB25 2-3. O Once / C Continuous',13,10
         db 24,'Loop verifies bytes, NOT absolute baud. Counts are hex modulo 65536.',13,10,0
 m_status:
@@ -628,7 +637,7 @@ msp_rx: in a,(6)
         cp 7eh
         jp nz,m_none
 ; Frame: ~D3, payload length, command, nonce[4], payload, CRC high/low.
-; Response: ~R3, length, command, nonce[4], [selector,WR4,version 3,0,0], CRC.
+; Response: ~R3, length, command, nonce[4], [selector,WR4,version 3,1,0], CRC.
 m_protocol:
         call rx
         jp c,m_none
@@ -731,8 +740,9 @@ mp_reply:
         ld (m_packet+6),hl
         ld a,3
         ld (m_packet+8),a
-        xor a
+        ld a,1
         ld (m_packet+9),a
+        xor a
         ld (m_packet+10),a
         ld hl,m_packet
         ld de,11

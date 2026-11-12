@@ -29,6 +29,10 @@ def main():
  try:
   assert not b.tx();assert b.peek(0x9002)==0
   assert b.l.board_wr(b.m,0,1)==0 and b.l.board_wr(b.m,1,4)==0x44
+  assert 'Waiting for host' in b.screen() and 'Shadows' not in b.screen()
+  b.key('?');assert b.peek(0x9002)==1 and 'Shadows' in b.screen()
+  b.key('\x1b');assert 'Shadows' not in b.screen()
+  cases.append('quiet boot screen, explicit diagnostics and escape restore')
   b.key('S');assert b.peek(0x9002)==1
   b.key('1');assert b.peek(0x9000)==5
   b.key('2');assert b.peek(0x9001)==0x47
@@ -68,9 +72,10 @@ def main():
   b.send(frame('C',nonce));assert b.tx().startswith(b'~R3') and b.peek(0x9002)==9
   b.send(frame('C',nonce));assert b.tx().startswith(b'~R3') and b.peek(0x9002)==9
   b.tick(6000000);assert b.peek(0x9002)==9
-  b.send(frame('Q',nonce));assert b.tx().startswith(b'~R3')
+  b.send(frame('Q',nonce));reply=b.tx();assert reply.startswith(b'~R3')
+  assert reply[11:14]==bytes([3,1,0]),reply
   b.send(frame('B',nonce));assert b.tx().startswith(b'~R3') and b.peek(0x9002)==0
-  b.send(b'V');assert b.tx()==b'KPV3.0.0\r\n'
+  b.send(b'V');assert b.tx()==b'KPV3.1.0\r\n'
   cases.append('CRC nonce discovery, no boot interpretation, lock survives, explicit boot return')
   saved=b.word(0x9000)
   b.key('A');b.send(frame('P',nonce));assert b.tx().startswith(b'~R3')

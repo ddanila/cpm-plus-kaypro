@@ -52,16 +52,22 @@ The native800 image has 160 logical tracks × 40 records × 128 bytes; that is
 virtual disk geometry, not a physical floppy format. It includes CP/M utilities,
 HELLO.TXT, deterministic binary data and KEYS/SCREEN diagnostic transients.
 
-ROM **3.0.0** displays its version, serial settings, expected upload and host
+The [3.1.0 candidate binary](firmware/3.1.0/boot.rom),
+[checksums and evidence](firmware/3.1.0/manifest.json), and
+[change notes](docs/rom-3.1.md) are included for burning from another machine.
+Physical qualification is pending.
+
+ROM **3.1.0** displays its version, serial settings, expected upload and host
 launcher instructions on the CRT. Its version is stored as readable ASCII in
 the ROM and recorded as `rom_version` in `build/manifest.json`.
-`src/rom-version.asm` is the single version source; bump major/minor/patch for
+`src/rom-version.asm` stores the banner version; the checked D3 response in
+`src/monitor.asm` carries the same version (tested together). Bump major/minor/patch for
 incompatible firmware changes, features, or fixes respectively. This numbering
 is independent of the unchanged **KP2** protocol and repository release tags.
 The first hardware candidate had no firmware version string.
 
 While waiting for the host, send ASCII `V` at 19200 8O1 to receive
-`KPV3.0.0\r\n`. This query is optional; the existing launcher still uses `K`
+`KPV3.1.0\r\n`. This query is optional; the existing launcher still uses `K`
 and receives `KP2`. See the [protocol contract](docs/protocol.md) for query scope.
 The original hardware-candidate release and its qualification reports describe
 the earlier ROM; rebuilding produces the new ROM and matched manifest.
@@ -69,7 +75,11 @@ the earlier ROM; rebuilding produces the new ROM and matched manifest.
 ## V3 local monitor
 
 Boot starts automatically with nominal 19200 8O1, x16, no flow control. The
-CRT shows the version, selected registers, nominal/calculated rate and status.
+CRT shows the version, waiting-for-host message and nominal/calculated rate.
+Press `?` for diagnostics/settings; ESC clears that display and returns to boot.
+Transfer status distinguishes receiving, CRC accepted/waiting for execute, and
+failed/retry. All V3 diagnostics remain available, including loopback.
+SIO parity, framing and overrun errors now reject an upload before execution.
 The 4096-byte image uses 3628 bytes and leaves 468 bytes free. V3 adds a short
 power-on settling delay and explicitly initializes both SIO channels; whether
 this resolves PC003's intermittent cold-start garbage still needs hardware tests.

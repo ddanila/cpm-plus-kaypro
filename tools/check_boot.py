@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[1]
 def main():
  l=C.CDLL(str(ROOT/'build'/('board-test.dylib' if sys.platform=='darwin' else 'board-test.so')))
  l.board_new.restype=C.c_void_p
- for n,args in dict(board_free=[],board_rom=[C.c_void_p,C.c_uint],board_tick=[C.c_uint],board_tx=[C.c_void_p],board_pc=[],board_receive=[C.c_uint,C.c_uint],board_peek=[C.c_uint],board_cell=[C.c_uint,C.c_uint]).items():getattr(l,n).argtypes=[C.c_void_p]+args
+ for n,args in dict(board_free=[],board_rom=[C.c_void_p,C.c_uint],board_tick=[C.c_uint],board_tx=[C.c_void_p],board_pc=[],board_receive=[C.c_uint,C.c_uint],board_receive_status=[C.c_uint,C.c_uint,C.c_uint],board_peek=[C.c_uint],board_cell=[C.c_uint,C.c_uint]).items():getattr(l,n).argtypes=[C.c_void_p]+args
  rom=(ROOT/'build/boot.rom').read_bytes();m=l.board_new();assert not l.board_rom(m,rom,len(rom))
  l.board_tick(m,2000000);cases=[]
  def tick(n=200000):l.board_tick(m,n)
@@ -25,26 +25,42 @@ def main():
   cases.append(name)
  try:
   screen=[''.join(chr(l.board_cell(m,r,c)&127) for c in range(80)).rstrip() for r in range(24)]
-  assert screen[0]=='Kaypro serial boot ROM v3.0.0',screen
+  assert screen[0]=='Kaypro serial boot ROM v3.1.0',screen
   assert 'KP2 CRC upload' in screen[1]
   assert receive()==b'','CRT banner must not contaminate serial handshake'
-  assert b'Kaypro serial boot ROM v3.0.0\r\n' in rom
+  assert b'Kaypro serial boot ROM v3.1.0\r\n' in rom
   cases.append('versioned startup screen and silent serial startup')
   for _ in range(2):
-   send(b'V');assert receive()==b'KPV3.0.0\r\n'
+   send(b'V');assert receive()==b'KPV3.1.0\r\n'
   cases.append('repeatable version query before KP2 handshake')
   for length in [0,1,0x35,0x3600,0xffff]:
    sync();send(length.to_bytes(2,'little'));recover(f'reject length {length:04x}')
   sync();send(b'\x36');tick(4000000);recover('truncated length timeout')
   sync();send(b'\x36\x00'+b'X'*5);tick(4000000);recover('truncated payload timeout')
   data=b'V'+b'\x00'*0x32+b'\xc3\x33\xc0' # self-loop at the documented entry
+  # Correct byte values with SIO error flags must never authorize execution.
+  for flag in (0x10,0x20,0x40):
+   for position in ('length','payload','crc','execute'):
+    sync()
+    wire=packet(data)
+    if position=='length':prefix=b'';value=wire[0]
+    elif position=='payload':prefix=wire[:2];value=wire[2]
+    elif position=='crc':prefix=wire[:-2];value=wire[-2]
+    else:
+     send(wire);assert receive()==b'\x06';prefix=b'';value=ord('G')
+    if prefix:send(prefix)
+    assert l.board_receive_status(m,0,value,flag)==0
+    tick(400000)
+    recover(f'SIO error {flag:02x} in {position}')
+    assert 0x8000<=l.board_pc(m)<0x9000
+    send(b'V');assert receive()==b'KPV3.1.0\r\n'
   sync();send(packet(data,0));recover('CRC failure')
   sync();send(packet(data)[:-1]);tick(4000000);recover('truncated CRC timeout')
   sync();send(packet(data));assert receive()==b'\x06'
   send(b'!');recover('wrong execute command')
   sync();send(packet(data));assert receive()==b'\x06'
   tick(4000000);recover('execute timeout')
-  send(b'V');assert receive()==b'KPV3.0.0\r\n'
+  send(b'V');assert receive()==b'KPV3.1.0\r\n'
   send(b'\x00!XYZ');assert receive()==b''
   sync();send(packet(data));assert receive()==b'\x06'
   assert l.board_pc(m)>=0x8000 and l.board_pc(m)<0x9000

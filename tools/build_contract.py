@@ -12,6 +12,9 @@ def main():
     assert len(rom)==4096
     version=re.findall(rb'Kaypro serial boot ROM v(\d+\.\d+\.\d+)\r\n',rom)
     assert len(version)==1,'ROM must contain exactly one firmware version banner'
+    published=ROOT/'firmware'/version[0].decode('ascii')/'boot.rom'
+    if published.exists():
+        assert published.read_bytes()==rom,'Published ROM differs; bump firmware version before publishing changes'
     assert 0x36<=len(platform)<=0x35ff
     assert len(platform)==sy['platform_end']-0xc000
     assert len((ROOT/'build/boot-stage.cim').read_bytes())<=0x1000

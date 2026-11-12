@@ -55,3 +55,62 @@ was tested.
 actual USB coding bytes, calculated adapter rates, setup failures, recovery
 results and emulator checks. [Transient and recovery test](../tools/hardware/README.md).
 The emulator check covers program recovery, not x1 electrical synchronization.
+
+## Historical results and improvement options
+
+Research on 2026-11-12 found no verified, reproducible stock Kaypro result above
+nominal 19200 in the sources reviewed. This is a search result, not proof that
+nobody achieved one. Two particularly relevant contemporary accounts are:
+
+- [Planemo's experiments](https://planemo.org/2014/08/10/serial-port-interfacing-to-the-z-100-part-2/):
+  the author initially expected 57600 on a TurboROM Kaypro 4-84, then corrected
+  that expectation after identifying the 8116 limit. The demonstrated 38400
+  result in that article belongs to the Z-100. A Kaypro clock modification was
+  proposed, not reported as completed.
+- [High Speed IMP 2.46](https://planemo.org/2014/08/19/high-speed-imp-v2-46/):
+  rate indexes through 115200 are platform independent. The author explicitly
+  keeps the Kaypro at 19200 pending motherboard changes; the fast SIO/CTC
+  example is a different machine.
+- [The Computer Journal issue 22](https://www.jaysage.org/tcj/tcj_22_OCR.pdf),
+  printed page 44, describes KTERM at 19200 and asserts higher rates are possible,
+  but gives no higher measured rate or clock configuration in that discussion.
+  It is not a reproducible above-19200 qualification.
+
+The [Kaypro schematic](https://retrocmp.de/kaypro/1985_1484-E_KayproTechnicalManual.pdf)
+on printed page 6-14 (sheet 2B) shows U78 output pin 3 driving both U70
+RxCA and TxCA, and output pin 17 driving the keyboard channel. It shows no
+external serial clock connection at J4. U68/U69 are MC1488/MC1489 line
+interfaces. Later-board external-clock arrangements must not be assumed to
+exist on PC81-240A.
+
+Candidate improvements, not yet implemented or qualified:
+
+| Approach | Expected benefit and limits |
+| --- | --- |
+| Change runtime 8O1 to 8N1 | 10% more byte capacity at the same baud: 11 wire bits become 10. Keep packet CRC and test error recovery. ROM bootstrap can retain its existing format. |
+| Batch records, cache reads, buffer console traffic | Reduce round trips and per-record overhead; profile RAM cost and reconnect/cache invalidation. Does not raise line baud. |
+| Faster CRC or compressed boot payload | Can reduce CPU work or transmitted bytes; measure first, since compression adds target CPU and RAM costs. |
+| x1 fast transmit, x16 receive between protocol phases | Short TX tests passed, but switching both peers adds complexity. Primarily helps Kaypro-to-host traffic, not boot or disk reads. Requires sustained tests. |
+| Replace baud generator and crystal | A documented divider-table route to 38400 exists. Exact chip suffix matters; see below. Requires keyboard and serial initialization changes. |
+| Add a reversible clock interposer for channel A | Preserve the keyboard clock and provide 614400 Hz for 38400 at x16. Higher candidate clocks need exact SIO timing, line-interface and CPU-service checks before promising a rate. |
+| CPU speed upgrade or additional UART | A CPU upgrade helps servicing but does not change U78's clock. A new UART can bypass the clock limit but is a substantially different hardware project. |
+
+The SMC table on printed page 283 identifies **COM8116T-013A with a 5.52960 MHz
+crystal** as one 38400-capable combination. A generic COM8116 replacement does
+not imply that table. Its 300-baud selector is 4, versus 5 in our current
+initialization, so a replacement without firmware changes would disturb the
+keyboard. Socket wiring, supply requirements and exact replacement ratings
+must also be checked before installation. Simply overclocking the existing
+generator is not an equivalent qualified modification.
+
+Synchronous capture followed by software UART decoding is another research
+possibility, not a demonstrated workaround. At the current maximum 316800-Hz
+clock, packed samples arrive at 39600 bytes/s: roughly 63 CPU cycles per byte
+at 2.5 MHz before decoding, framing, buffering or protocol work. SIO hunt and
+synchronization behavior also need a design. Normal x1 asynchronous reception
+has already failed the physical tests above.
+
+Recommended order: measure protocol overhead, qualify 8N1 and batching with
+recoverable RAM software, then consider a reversible channel-A clock adapter
+if a true increase beyond the present clock limit is wanted. No clock
+modification was made during this campaign.

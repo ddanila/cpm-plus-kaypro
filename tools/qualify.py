@@ -18,7 +18,7 @@ def main():
   run('bash','sync/jukuhost_linux_build.sh',cwd=host)
   run('bash','sync/jukuhost_runner_check.sh',cwd=host)
   run('bash','sync/jukuhost_core_check.sh',cwd=host)
-  for name in ['boot','drivers','launcher','monitor','optimization','adapter']:
+  for name in ['boot','drivers','launcher','monitor','optimization','adapter','recovery_profile']:
    run(sys.executable,f'tools/check_{name}.py')
   for file in ['boot-result.json','driver-result.json','launcher-result.json','monitor-result.json','optimization-result.json','adapter-result.json','manifest.json','driver-map.json']:
    shutil.copyfile(ROOT/'build'/file,out/file)

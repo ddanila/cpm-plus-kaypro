@@ -29,7 +29,12 @@ def recover(port,config):
     payload=validate(image,platform)
     if options['optimized']:
         payload=prepare(payload,json.loads(platform.with_name('manifest.json').read_text()),options['runtime_parity'],options['buffer_console'])
-    bootstrap(port.fd,payload,session,30)
+    try:bootstrap(port.fd,payload,session,30)
+    except ValueError as error:
+        if 'ROM rejected upload: 15' not in str(error):raise
+        # A checked NAK means the ROM did not execute. Require a new Q reply
+        # before another upload; never issue G for the rejected payload.
+        return dict(status='unknown',rom=identity,upload_rejected=True)
     write_all(port.fd,b'G',time.monotonic()+3)
     if options['optimized']:
         result=transition(port,options['runtime_baud'],options['runtime_parity'],port.usb)

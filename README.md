@@ -7,8 +7,10 @@ V3 offers local serial settings, diagnostics and explicit discovery; the selecte
 configuration is carried into CP/M.
 This is a software-qualified hardware candidate. On PC003, the owner reports
 that V1 showed garbage at first power-on, then displayed the waiting banner
-after reset. Cold-start reliability remains unresolved; physical serial upload
-and CP/M boot have not yet been reported. Physical floppy support is deferred.
+after reset. Cold-start reliability remains unresolved. Physical serial upload
+at 19200 8O1 is now verified, including CRC rejection and return to the monitor. The first CP/M attempt stopped because of a stale
+host executable; CP/M hardware qualification is still pending. See the
+[physical test report](reports/hardware-pc003-v3-20261112.json). Physical floppy support is deferred.
 
 The guest filesystem loader, BIOS and session approach reuse cpm-plus-1715.
 Juku's N4 console and NetDisk v3 guest code is included directly from the pinned
@@ -117,6 +119,7 @@ python3 tools/serial_boot.py boot \
 
 Linux uses the corresponding `/dev/ttyUSB…` or `/dev/ttyACM…` device. Choose the
 actual adapter path; the launcher never selects or probes an arbitrary port.
+The launcher checks host option compatibility before opening the serial port.
 It waits up to 30 seconds for KP2, uploads the platform and starts the disk host.
 The interactive host console mirrors the CRT; **Ctrl-] detaches**, while Ctrl-C
 is sent to CP/M. The original disk image is never modified: each new session

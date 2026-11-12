@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Host-side failure, partial-I/O and terminal tests; no physical port access."""
 import binascii,json,os,pty,select,sys,tempfile,threading,time,tty
+import subprocess
+from unittest.mock import patch
+import serial_boot
 from pathlib import Path
 from serial_boot import Port,bootstrap,upload,exact,write_all,validate
 from terminal import Screen,Keys
@@ -11,6 +14,22 @@ def main():
  cases=[]
  with tempfile.TemporaryDirectory() as td:
   out=Path(td)
+  # PC003 regression: an old server rejected framing options only AFTER G
+  # executed the guest, leaving the CP/M loader halted. Reject it before even
+  # opening the port or creating a session, for boot and attach alike.
+  for mode in ('boot','attach'):
+   session=out/('stale-host-'+mode)
+   argv=['serial_boot.py',mode,'--serial','/dev/unused',
+         '--session',str(session),'--host',sys.executable,'--console-pty','/dev/unused']
+   stale=subprocess.CompletedProcess([],2,'','jukuhost: unknown option: --serial-parity\n')
+   with patch.object(sys,'argv',argv), patch.object(serial_boot.subprocess,'run',return_value=stale) as run, patch.object(serial_boot,'Port') as port:
+    try:serial_boot.main()
+    except ValueError as e:assert 'incompatible host' in str(e)
+    else:raise AssertionError('stale host accepted')
+    port.assert_not_called();assert not session.exists()
+    options=run.call_args.args[0]
+    assert options[-1]=='--help' and '--serial-parity' in options[:-1]
+  cases.append('incompatible host rejected before serial access, session creation or execution')
   def exchange(identity=b'KP2',ack=b'\x06',delay=.05):
    master,slave=pty.openpty();tty.setraw(slave);port=Port(os.ttyname(slave));assert port.simulated
    errors=[];data=bytes(range(64))

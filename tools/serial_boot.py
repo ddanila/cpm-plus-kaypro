@@ -121,6 +121,22 @@ def validate(image,platform):
     return data
 
 
+def validate_host(host,baud=19200,parity="O",stop_bits=1):
+    # --help exits during option parsing, before serial or media access. Put it
+    # LAST so old binaries must parse the options that V3 requires first.
+    command=[str(Path(host).resolve()),'--machine','kaypro2',
+             '--disk-baud',str(baud),'--serial-parity',parity,
+             '--serial-stop-bits',str(stop_bits),'--help']
+    try:
+        result=subprocess.run(command,capture_output=True,text=True,timeout=5)
+    except subprocess.TimeoutExpired as e:
+        raise ValueError('host preflight timed out; no upload attempted') from e
+    if result.returncode:
+        detail=(result.stderr or result.stdout).splitlines()
+        raise ValueError('incompatible host executable; rebuild the pinned host before booting: '+
+                         (detail[0] if detail else f'exit {result.returncode}'))
+
+
 def host_command(host,serial,fd,disk,console,session,readonly=False,baud=19200,parity="O",stop_bits=1):
     stamp=str(time.time_ns())
     args=[str(Path(host).resolve()),'--machine','kaypro2','--resume-disk','--serial',serial,
@@ -186,6 +202,7 @@ def main():
     if not math.isfinite(a.timeout) or a.timeout<=0:p.error('timeout must be finite and positive')
     if not a.host.is_file() or not os.access(a.host,os.X_OK):p.error('host executable is missing')
     if not a.console_pty and not sys.stdin.isatty():p.error('use --console-pty when not interactive')
+    validate_host(a.host,a.baud,a.parity,a.stop_bits)
     payload=validate(a.image,a.platform)
     session=a.session.resolve()
     identity=dict(protocol='KP2',baud=a.baud,framing=f'8{a.parity}{a.stop_bits}',platform_sha256=digest(a.platform),

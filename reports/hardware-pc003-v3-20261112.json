@@ -1,0 +1,315 @@
+{
+  "date": "2026-11-12",
+  "machine": "PC003 Kaypro 2 PC81-240A",
+  "hardware_executed": true,
+  "full_hardware_qualification": false,
+  "rom_version": "3.0.0",
+  "rom_sha256_from_matched_build": "b101752648933fb78918d2131ca6e15932719badce20ac1469be71aad59ec408",
+  "rom_readback_verified_this_session": false,
+  "port": "/dev/cu.usbserial-2110",
+  "framing": "19200 8O1",
+  "wiring_correction": "Owner initially counted female DB25 from left, using 12/11 rather than 2/3. Corrected pins restored communication.",
+  "transmit_test": {
+    "mode": "rx-test",
+    "port": "/dev/cu.usbserial-2110",
+    "complete": true,
+    "events": [],
+    "settings": {
+      "baud": 19200,
+      "parity": "O",
+      "stop_bits": 1,
+      "simulated": false
+    },
+    "received_bytes": 7112,
+    "complete_pattern_seen": true,
+    "pattern_stream_matches": true
+  },
+  "paced_query": {
+    "drained": "",
+    "version": "4b5056332e302e300d0a",
+    "query_tx": "7e443300513132333466fa",
+    "query_rx": "7e52330551313233340f4503000044c1",
+    "crc_valid": true,
+    "nonce_matches": true
+  },
+  "query_matrix": [
+    {
+      "baud": 19200,
+      "delay": 0,
+      "ok": 10,
+      "trials": 10,
+      "replies": [
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1"
+      ]
+    },
+    {
+      "baud": 19200,
+      "delay": 0.001,
+      "ok": 10,
+      "trials": 10,
+      "replies": [
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1"
+      ]
+    },
+    {
+      "baud": 19200,
+      "delay": 0.002,
+      "ok": 10,
+      "trials": 10,
+      "replies": [
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1"
+      ]
+    },
+    {
+      "baud": 19200,
+      "delay": 0.005,
+      "ok": 10,
+      "trials": 10,
+      "replies": [
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1"
+      ]
+    },
+    {
+      "baud": 19200,
+      "delay": 0.01,
+      "ok": 10,
+      "trials": 10,
+      "replies": [
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1",
+        "7e52330551313233340f4503000044c1"
+      ]
+    },
+    {
+      "baud": 19800,
+      "delay": 0,
+      "ok": 0,
+      "trials": 10,
+      "replies": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "baud": 19800,
+      "delay": 0.001,
+      "ok": 0,
+      "trials": 10,
+      "replies": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "baud": 19800,
+      "delay": 0.002,
+      "ok": 0,
+      "trials": 10,
+      "replies": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "baud": 19800,
+      "delay": 0.005,
+      "ok": 0,
+      "trials": 10,
+      "replies": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "baud": 19800,
+      "delay": 0.01,
+      "ok": 0,
+      "trials": 10,
+      "replies": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    }
+  ],
+  "upload_tests": [
+    {
+      "size": 54,
+      "corrupt": false,
+      "reply": "06",
+      "upload_seconds": 0.037469,
+      "version_after": "KPV3.0.0\r\n"
+    },
+    {
+      "size": 3833,
+      "corrupt": true,
+      "reply": "15",
+      "upload_seconds": 2.2428979169999996,
+      "version_after": "KPV3.0.0\r\n"
+    },
+    {
+      "size": 3833,
+      "corrupt": false,
+      "reply": "06",
+      "upload_seconds": 2.223547084,
+      "version_after": "KPV3.0.0\r\n"
+    },
+    {
+      "size": 13823,
+      "corrupt": false,
+      "reply": "06",
+      "upload_seconds": 8.000178792,
+      "version_after": "KPV3.0.0\r\n"
+    },
+    {
+      "size": 3833,
+      "corrupt": false,
+      "reply": "06",
+      "upload_seconds": 2.2237044170000004,
+      "version_after": "KPV3.0.0\r\n"
+    }
+  ],
+  "cpm": {
+    "passed": false,
+    "failure": "Local host build a0a47d8 lacked --serial-parity; rejected options after guest execution. Owner observed CP/M 3 boot error CPM3.SYS. Correct pinned host rebuilt, but attach did not recover loader.",
+    "pinned_host_revision": "4e5fd259ee008035eeb4f042c2fcca51c509ed28",
+    "fix": "Host option-parser preflight before opening serial port, creating session or uploading. Regression covers boot and attach."
+  },
+  "limitations": [
+    "19800 host requests produced no matching replies; actual physical bit rates not measured.",
+    "Initial unpaced query failure did not recur in matrix; no established pacing requirement.",
+    "Synthetic upload code returns to monitor; CRC acceptance is not independent memory readback.",
+    "Local keyboard and CRT observed by owner; no full terminal or cold-start qualification."
+  ],
+  "emulator_validation": {
+    "complete": true,
+    "hardware_executed": false,
+    "framing": "19200 8O1",
+    "rom_sha256": "b101752648933fb78918d2131ca6e15932719badce20ac1469be71aad59ec408",
+    "platform_sha256": "0ff30f1500a7e1e0818c43e998fca3d65b188dc911afbfe356c2d19e12f69bc9",
+    "image_sha256": "4941cb2e782df0e812b538fbfb488fb26a2880f455819cb8ea095ce56a331d60",
+    "host_sha256": "c75b75dcc37cb8ae7f3a0b208756fb7a319e0c2d83ebd292650cf4cb170a3243",
+    "emulator_sha256": "f85294ef7a6ded0d18bbaf6689632e74d8305399d813787a7e1929bc832f58f5",
+    "cases": [
+      "corrupt bootstrap rejected",
+      "production launcher started",
+      "CP/M Plus cold boot",
+      "TYPE HELLO.TXT",
+      "DIR",
+      "SCREEN",
+      "local keyboard command via SIO B",
+      "PIP BINCOPY.BIN=PATTERN.BIN",
+      "multi-record binary copy independently verified",
+      "local keyboard during BIOS disk writes",
+      "PIP COPY.TXT=HELLO.TXT",
+      "independent disk readback",
+      "RENAME RENAMED.TXT=COPY.TXT",
+      "rename persisted",
+      "warm boot",
+      "TYPE RENAMED.TXT",
+      "host restart without guest reset",
+      "source image unchanged",
+      "selected serial configuration retained by CP/M",
+      "CRT and host screen equivalence",
+      "keyboard service gap below one 300-baud character"
+    ],
+    "emulator_exit": 0,
+    "keyboard_max_service_gap_cycles": 34044
+  },
+  "launcher_validation": {
+    "complete": true,
+    "hardware_executed": false,
+    "cases": [
+      "incompatible host rejected before serial access, session creation or execution",
+      "fragmented identity and exact CRC packet, no implicit execution",
+      "old ROM rejected",
+      "NAK rejected without execution",
+      "bounded absent-ROM timeout",
+      "partial writes preserve 256 KiB stream",
+      "diagnostic parser rejects noise, bad CRC and stale nonce; configurable PTY framing",
+      "matched-artifact manifest required"
+    ]
+  }
+}

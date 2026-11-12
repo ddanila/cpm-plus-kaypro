@@ -1,6 +1,7 @@
 # PC003 first hardware trial
 
-Status: **V3 hardware trial not performed**. Software qualification is a prerequisite, not proof
+Status: **V3 serial/ROM trial passed on PC003 on 2026-11-12; CP/M qualification pending**.
+See [physical results](../reports/hardware-pc003-v3-20261112.json). Software qualification is a prerequisite, not proof
 of electrical timing or compatibility with this particular board.
 
 ## Record equipment and preserve the original

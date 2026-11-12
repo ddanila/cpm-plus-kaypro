@@ -39,12 +39,13 @@ int main(int argc,char **argv){
  unsigned last_boot_state=~0u;
  uint64_t last_service=0,max_gap=0,last_key=0;unsigned prior_pc=0;
  uint64_t start=ns(),next_rx=0,next_key=0,report=0;unsigned dropped=0,key_dropped=0,key_received=0;
+ unsigned reset_drops=0;int reset_trial=getenv("KAYPRO_RESET_TRIAL")!=NULL;int runtime_seen=!reset_trial;
  while(!stop){
   uint64_t target=(ns()-start)*KAYPRO2_CLOCK_HZ/1000000000u;
   if(target>m->cpu.cycles+25000)target=m->cpu.cycles+25000;
   while(m->cpu.cycles<target){
    if(m->cpu.cycles>=next_rx){uint8_t b;ssize_t n=read(fd,&b,1);
-    if(n==1){if(kaypro2_receive(m,0,b))dropped++;
+    if(n==1){if(kaypro2_receive(m,0,b)){dropped++;if(!runtime_seen)reset_drops++;fprintf(stderr,"rx-drop pc=%04x runtime=%d\n",m->cpu.cpu.pc,runtime_seen);}
      unsigned ticks=kaypro2_character_ticks(m,0);next_rx=m->cpu.cycles+(ticks?ticks:1303);}
     else if(n<0&&errno!=EAGAIN&&errno!=EINTR&&errno!=EIO)stop=1;
    }
@@ -66,6 +67,7 @@ int main(int argc,char **argv){
      last_boot_state=state;
     }
    }
+   if(m->cpu.cpu.pc==0xc033)runtime_seen=1;
    prior_pc=m->cpu.cpu.pc;
    kaypro2_run(m,1);
   }
@@ -84,5 +86,6 @@ int main(int argc,char **argv){
   kaypro2_render(m,pixels,1);fprintf(f,"P5\n# font=%s\n560 240\n1\n",fontpath?"external":"synthetic");
   fwrite(pixels,1,560*240,f);free(pixels);fclose(f);}}
  fprintf(stderr,"keyboard received=%u dropped=%u max_service_gap=%llu\n",key_received,key_dropped,(unsigned long long)max_gap);
- free(m);return dropped||key_dropped?1:0;
+ fprintf(stderr,"reset-transition-drops=%u runtime-drops=%u\n",reset_drops,dropped-reset_drops);
+ free(m);return dropped-reset_drops||key_dropped?1:0;
 }

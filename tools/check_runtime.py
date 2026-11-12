@@ -10,7 +10,7 @@ from check_drivers import symbols
 ROOT=Path(__file__).resolve().parents[1]
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--host',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--read-only',action='store_true');p.add_argument('--corrupt-read',action='store_true');p.add_argument('--alternate',action='store_true',help='select 9600 8E2 using the ROM keyboard');p.add_argument('--optimized',action='store_true');p.add_argument('--read-ahead',type=int,default=4);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--host',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--read-only',action='store_true');p.add_argument('--corrupt-read',action='store_true');p.add_argument('--alternate',action='store_true',help='select 9600 8E2 using the ROM keyboard');p.add_argument('--optimized',action='store_true');p.add_argument('--auto',action='store_true');p.add_argument('--read-ahead',type=int,default=4);a=p.parse_args()
     a.out.mkdir(parents=True,exist_ok=False)
     wire,device=pty.openpty();terminal,console=pty.openpty();keyboard_r,keyboard_w=os.pipe()
     for fd in (wire,device,terminal,console):tty.setraw(fd)
@@ -38,7 +38,7 @@ def main():
     def command(text):
         at=len(output);os.write(terminal,text.encode()+b'\r');data=expect(b'A>',at);passed(text);return data
     def start_host(mode='attach'):
-        return subprocess.Popen([sys.executable,str(ROOT/'tools/serial_boot.py'),mode,
+        return subprocess.Popen([sys.executable,str(ROOT/'tools/serial_boot.py'),'auto' if a.auto else mode,
             '--host',str(a.host),'--serial',os.ttyname(device),'--session',str(a.out/'session'),
             '--console-pty',os.ttyname(console)]+(['--baud','9600','--parity','E','--stop-bits','2'] if a.alternate else [])+(['--runtime-profile','fast','--buffer-console','--read-ahead',str(a.read_ahead)] if a.optimized else [])+(['--read-only'] if a.read_only else [])+(['--test-corrupt-read-reply-once'] if a.corrupt_read and mode=='boot' else []),stdout=hostlog,stderr=hostlog)
     try:
@@ -93,6 +93,17 @@ def main():
             host.terminate();host.wait(timeout=10);host=None
             host=start_host();time.sleep(.5)
             assert b'Kaypro 2' in command('TYPE RENAMED.TXT');passed('host restart without guest reset')
+        if a.auto:
+            # Power cycle the modeled target only; the production host stays up.
+            # No side channel tells the host which state/settings to expect.
+            at=len(output)
+            emu.terminate();emu.wait(timeout=10)
+            emu=subprocess.Popen([str(ROOT/'build/kaypro-probe'),str(ROOT/'build/boot.rom'),str(wire),str(a.out/'ram.bin'),str(keyboard_r)],pass_fds=(wire,keyboard_r),stderr=log,env=dict(os.environ,KAYPRO_RESET_TRIAL="1",KAYPRO_BOOT_SYNC=str(symbols(ROOT/'build/boot-stage.lst')['sync']),KAYPRO_KEYSERVICE=str(symbols(ROOT/'build/platform.lst')['keyservice'])))
+            expect(b'A>',at,120);passed('automatic ROM reset recovery with unchanged host')
+            assert b'Kaypro 2' in command('TYPE HELLO.TXT')
+            if not a.read_only:
+                assert inspect((a.out/'session/disk.img').read_bytes())[(0,'RENAMED.TXT')].data.startswith(b'CP/M')
+                passed('session writes survive automatic reboot')
         assert digest(image)==result['image_sha256'];passed('source image unchanged')
         result['complete']=True
     finally:
@@ -117,7 +128,7 @@ def main():
                 import re
                 match=re.search(r'keyboard received=(\d+) dropped=(\d+) max_service_gap=(\d+)',(a.out/'emulator.log').read_text())
                 assert match and int(match[2])==0
-                assert 0<int(match[3])<83334,match[0]
+                assert (a.auto and int(match[3])==0) or 0<int(match[3])<83334,match[0]
                 result['keyboard_max_service_gap_cycles']=int(match[3])
                 passed('keyboard service gap below one 300-baud character')
                 if a.corrupt_read:

@@ -26,6 +26,7 @@ def main():
   run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'read-only','--read-only','--corrupt-read')
   run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'alternate','--alternate')
   run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'optimized','--optimized','--read-ahead','8','--corrupt-read')
+  run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'auto','--auto','--optimized')
   if a.mame:run(sys.executable,'tools/check_mame.py','--mame',a.mame,'--out',out/'mame')
   result['manifest']=json.loads((out/'manifest.json').read_text())
   result['dependencies']=json.loads((ROOT/'docs/dependencies.json').read_text())

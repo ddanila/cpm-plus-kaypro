@@ -54,27 +54,6 @@ def transition(port, baud, parity, adapter=None):
         write_all(port.fd,rollback,time.monotonic()+2)
         return dict(selected='fallback',settings=port.settings,error=str(error))
 
-def next_generation(session, registry=None):
-    """Caller holds session.lock; a global lock prevents cross-session reuse.
-
-    A copied session advances past its last epoch too. The initial random
-    namespace reduces collisions with independently operated host computers;
-    these 32-bit protocol epochs are not cryptographic identities.
-    """
-    path=session/'generation.json'
-    registry=Path(registry) if registry is not None else Path.home()/'.cache/cpm-plus-kaypro'
-    registry.mkdir(parents=True,exist_ok=True)
-    def write(target,value):
-        temporary=target.with_suffix('.tmp')
-        with temporary.open('w') as stream:
-            stream.write(json.dumps(value)+'\n');stream.flush();os.fsync(stream.fileno())
-        temporary.replace(target)
-    with (registry/'generation.lock').open('a+b') as lock:
-        fcntl.flock(lock,fcntl.LOCK_EX)
-        global_path=registry/'generation.json'
-        global_value=json.loads(global_path.read_text()) if global_path.exists() else secrets.randbits(31)
-        local_value=json.loads(path.read_text()) if path.exists() else 0
-        value=max(global_value,local_value)+1
-        if not 1<=value<=0xffffffff:raise ValueError('session generation exhausted')
-        write(global_path,value);write(path,value)
-    return value
+from shared_host import load
+load()
+from jh_recovery import next_generation

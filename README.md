@@ -179,3 +179,19 @@ otherwise the renderer uses an explicitly synthetic fixture. PC003's handwritten
 See [protocol/memory contract](docs/protocol.md),
 [console behavior](docs/console.md), [hardware sources](docs/hardware-sources.md)
 and [hardware trial checklist](docs/hardware-trial.md).
+
+## Automatic boot and reconnection
+
+Use `tools/serial_boot.py auto` with the same arguments and session directory
+as boot/attach. A new session copies the source disk once; an existing session
+retains its writable disk and journal. The shared native host identifies V3
+boot-wait versus running CP/M and also handles a later reset without restarting
+the host. No keypress or ROM change is needed in Mode 00. V3 speed scanning is
+still explicit; automatic host recovery checks saved runtime and configured
+boot settings rather than changing the ROM's diagnostic mode blindly.
+
+Use the pinned host and its `host/python/jh_recovery` support (included under
+`python/` in packages). `boot`, `attach`, and diagnostic modes remain available.
+Recovery preserves artifact checks and serial options; fast runtime settings
+remain opt-in pending their separate hardware qualification.
+See [shared recovery](https://github.com/ddanila/8080-cosim/blob/master/docs/serial-recovery.md).

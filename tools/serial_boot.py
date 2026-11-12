@@ -188,7 +188,7 @@ def main():
         from diagnostics import main as diagnostics_main
         return diagnostics_main()
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('mode',choices=['boot','attach'])
+    p.add_argument('mode',choices=['boot','attach','auto'])
     p.add_argument('--serial',required=True)
     p.add_argument('--baud',type=int,default=19200)
     p.add_argument('--parity',choices=['N','O','E'],default='O')
@@ -208,6 +208,11 @@ def main():
     p.add_argument('--test-corrupt-read-reply-once',action='store_true',help=argparse.SUPPRESS)
     p.add_argument('--console-pty',help='raw Kaypro console endpoint for automation')
     a=p.parse_args()
+    if a.mode=='auto':
+        from shared_host import load
+        load(a.host)
+        from jh_recovery import preflight
+        preflight(a.host)
     if not math.isfinite(a.timeout) or a.timeout<=0:p.error('timeout must be finite and positive')
     if not a.host.is_file() or not os.access(a.host,os.X_OK):p.error('host executable is missing')
     if not a.console_pty and not sys.stdin.isatty():p.error('use --console-pty when not interactive')
@@ -226,7 +231,7 @@ def main():
                   source_sha256=digest(a.image),host_sha256=digest(a.host),read_only=a.read_only)
     if optimized:identity.update(runtime_profile=a.runtime_profile,runtime_baud=runtime_baud,runtime_parity=runtime_parity,
         adapter=a.adapter,read_ahead=a.read_ahead,buffer_console=a.buffer_console,upload_sha256=hashlib.sha256(payload).hexdigest())
-    if a.mode=='boot':
+    if a.mode=='boot' or (a.mode=='auto' and not session.exists()):
         session.mkdir(parents=True,exist_ok=False)
         shutil.copyfile(a.image,session/'disk.img')
         (session/'identity.json').write_text(json.dumps(identity,indent=2)+'\n')
@@ -242,7 +247,7 @@ def main():
         from pl2303 import USBRate
         adapter=USBRate(a.serial)
     open_baud,open_parity=a.baud,a.parity
-    if optimized and a.mode=='attach':
+    if optimized and a.mode in ('attach','auto') and (session/'runtime.json').exists():
         runtime=json.loads((session/'runtime.json').read_text())
         open_baud,open_parity=runtime['settings']['baud'],runtime['settings']['parity']
     try:
@@ -286,6 +291,15 @@ def main():
         command=host_command(a.host,a.serial,port.fd,session/'disk.img',console,session,a.read_only,
             selected['baud'],selected['parity'],a.stop_bits,a.read_ahead,generation)
         if adapter:command.append('--serial-verified')
+        if a.mode=='auto':
+            from shared_host import load
+            load(a.host)
+            from jh_recovery import arguments
+            command+=arguments(a.host,session,ROOT/'tools/recovery_profile.py',selected,
+                [a.platform,a.image,a.platform.parent/'manifest.json'],serial=a.serial,adapter=a.adapter,
+                boot_settings=dict(baud=a.baud,parity=a.parity,stop_bits=a.stop_bits),
+                options=dict(platform=str(a.platform.resolve()),image=str(a.image.resolve()),optimized=optimized,
+                    runtime_baud=runtime_baud,runtime_parity=runtime_parity,buffer_console=a.buffer_console))
         if a.test_corrupt_read_reply_once:command.append('--test-corrupt-read-reply-once')
         result['host_exit']=run_host(command,port.fd,session,master)
         result['complete']=result['host_exit']==0

@@ -10,7 +10,7 @@ from check_drivers import symbols
 ROOT=Path(__file__).resolve().parents[1]
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--host',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--read-only',action='store_true');p.add_argument('--corrupt-read',action='store_true');p.add_argument('--alternate',action='store_true',help='select 9600 8E2 using the ROM keyboard');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--host',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--read-only',action='store_true');p.add_argument('--corrupt-read',action='store_true');p.add_argument('--alternate',action='store_true',help='select 9600 8E2 using the ROM keyboard');p.add_argument('--optimized',action='store_true');p.add_argument('--read-ahead',type=int,default=4);a=p.parse_args()
     a.out.mkdir(parents=True,exist_ok=False)
     wire,device=pty.openpty();terminal,console=pty.openpty();keyboard_r,keyboard_w=os.pipe()
     for fd in (wire,device,terminal,console):tty.setraw(fd)
@@ -40,7 +40,7 @@ def main():
     def start_host(mode='attach'):
         return subprocess.Popen([sys.executable,str(ROOT/'tools/serial_boot.py'),mode,
             '--host',str(a.host),'--serial',os.ttyname(device),'--session',str(a.out/'session'),
-            '--console-pty',os.ttyname(console)]+(['--baud','9600','--parity','E','--stop-bits','2'] if a.alternate else [])+(['--read-only'] if a.read_only else [])+(['--test-corrupt-read-reply-once'] if a.corrupt_read and mode=='boot' else []),stdout=hostlog,stderr=hostlog)
+            '--console-pty',os.ttyname(console)]+(['--baud','9600','--parity','E','--stop-bits','2'] if a.alternate else [])+(['--runtime-profile','fast','--buffer-console','--read-ahead',str(a.read_ahead)] if a.optimized else [])+(['--read-only'] if a.read_only else [])+(['--test-corrupt-read-reply-once'] if a.corrupt_read and mode=='boot' else []),stdout=hostlog,stderr=hostlog)
     try:
         def monitor_ready(mode,selector,wr4):
             marker=f'monitor-ready mode={mode} selector={selector} wr4={wr4:02x}'
@@ -104,7 +104,7 @@ def main():
             if emu.returncode:result['complete']=False
             if result['complete']:
                 logtext=(a.out/'emulator.log').read_text()
-                assert ('baud=9600 wr4=4f' if a.alternate else 'baud=19800 wr4=45') in logtext
+                assert ('baud=9600 wr4=4f' if a.alternate else 'baud=19800 wr4=44' if a.optimized else 'baud=19800 wr4=45') in logtext
                 passed('selected serial configuration retained by CP/M')
                 model=Screen();model.feed(output)
                 ram=(a.out/'ram.bin').read_bytes()

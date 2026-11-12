@@ -31,7 +31,8 @@ init:   di
 unavailable:
         xor a
         ret
-const:  call keyservice
+const:  call console_flush
+        call keyservice
         ld a,(keyhold)
         or a
         jr nz,const_empty
@@ -65,9 +66,7 @@ conout: push af
         push hl
         call keyservice
         call localout
-        ld a,c
-        ld (RHINPUT),a
-        call rh_output
+        call console_queue
         call keyservice
         pop hl
         pop de
@@ -129,6 +128,9 @@ crcnox: dec e
 loader: di
         ld sp,0f700h
         call link_import
+        call keyboard_init
+        call link_init
+        call runtime_start
         call init
         ld bc,0
         call seldsk
@@ -366,5 +368,6 @@ keyqueue: ds 128
 link_baud: db 15
 link_format: db 45h
         include "src/link.asm"
+        include "src/runtime-link.asm"
 platform_end:
         end

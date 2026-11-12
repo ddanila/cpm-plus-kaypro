@@ -18,13 +18,14 @@ def main():
   run('bash','sync/jukuhost_linux_build.sh',cwd=host)
   run('bash','sync/jukuhost_runner_check.sh',cwd=host)
   run('bash','sync/jukuhost_core_check.sh',cwd=host)
-  for name in ['boot','drivers','launcher','monitor']:
+  for name in ['boot','drivers','launcher','monitor','optimization','adapter']:
    run(sys.executable,f'tools/check_{name}.py')
-  for file in ['boot-result.json','driver-result.json','launcher-result.json','monitor-result.json','manifest.json','driver-map.json']:
+  for file in ['boot-result.json','driver-result.json','launcher-result.json','monitor-result.json','optimization-result.json','adapter-result.json','manifest.json','driver-map.json']:
    shutil.copyfile(ROOT/'build'/file,out/file)
   run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'writable')
   run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'read-only','--read-only','--corrupt-read')
   run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'alternate','--alternate')
+  run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'optimized','--optimized','--read-ahead','8','--corrupt-read')
   if a.mame:run(sys.executable,'tools/check_mame.py','--mame',a.mame,'--out',out/'mame')
   result['manifest']=json.loads((out/'manifest.json').read_text())
   result['dependencies']=json.loads((ROOT/'docs/dependencies.json').read_text())

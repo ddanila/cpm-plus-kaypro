@@ -121,12 +121,13 @@ def validate(image,platform):
     return data
 
 
-def validate_host(host,baud=19200,parity="O",stop_bits=1):
+def validate_host(host,baud=19200,parity="O",stop_bits=1,optimized=False):
     # --help exits during option parsing, before serial or media access. Put it
     # LAST so old binaries must parse the options that V3 requires first.
     command=[str(Path(host).resolve()),'--machine','kaypro2',
              '--disk-baud',str(baud),'--serial-parity',parity,
              '--serial-stop-bits',str(stop_bits),'--help']
+    if optimized:command[-1:-1]=['--session-generation','1','--read-ahead','8','--serial-verified']
     try:
         result=subprocess.run(command,capture_output=True,text=True,timeout=5)
     except subprocess.TimeoutExpired as e:
@@ -137,12 +138,14 @@ def validate_host(host,baud=19200,parity="O",stop_bits=1):
                          (detail[0] if detail else f'exit {result.returncode}'))
 
 
-def host_command(host,serial,fd,disk,console,session,readonly=False,baud=19200,parity="O",stop_bits=1):
+def host_command(host,serial,fd,disk,console,session,readonly=False,baud=19200,parity="O",stop_bits=1,read_ahead=1,generation=None):
     stamp=str(time.time_ns())
     args=[str(Path(host).resolve()),'--machine','kaypro2','--resume-disk','--serial',serial,
           '--serial-fd',str(fd),'--volume',str(disk),'--console-pty',console,
           '--log',str(session/f'host-{stamp}.log'),'--capture',str(session/f'wire-{stamp}.bin')]
     args += ['--disk-baud',str(baud),'--serial-parity',parity,'--serial-stop-bits',str(stop_bits)]
+    args += ['--read-ahead',str(read_ahead)]
+    if generation is not None:args += ['--session-generation',str(generation)]
     if not readonly:args.append('--writable')
     return args
 
@@ -190,6 +193,12 @@ def main():
     p.add_argument('--baud',type=int,default=19200)
     p.add_argument('--parity',choices=['N','O','E'],default='O')
     p.add_argument('--stop-bits',type=int,choices=[1,2],default=1)
+    p.add_argument('--runtime-profile',choices=['compat','fast'])
+    p.add_argument('--runtime-baud',type=int,choices=[19200,19800])
+    p.add_argument('--runtime-parity',choices=['N','O'])
+    p.add_argument('--adapter',choices=['posix','pl2303hxd'],default='posix')
+    p.add_argument('--read-ahead',type=int,choices=[1,2,4,8],default=1)
+    p.add_argument('--buffer-console',action='store_true')
     p.add_argument('--session',type=Path,required=True)
     p.add_argument('--host',type=Path,default=ROOT.parent/'8080-cosim/build/jukuhost')
     p.add_argument('--platform',type=Path,default=ROOT/'build/platform.cim')
@@ -202,11 +211,21 @@ def main():
     if not math.isfinite(a.timeout) or a.timeout<=0:p.error('timeout must be finite and positive')
     if not a.host.is_file() or not os.access(a.host,os.X_OK):p.error('host executable is missing')
     if not a.console_pty and not sys.stdin.isatty():p.error('use --console-pty when not interactive')
-    validate_host(a.host,a.baud,a.parity,a.stop_bits)
+    optimized=bool(a.runtime_profile)
+    if not optimized and (a.runtime_baud or a.runtime_parity or a.buffer_console or a.read_ahead!=1):p.error('runtime options require --runtime-profile')
+    from runtime_link import PROFILES,prepare,transition,next_generation
+    runtime_baud,runtime_parity=PROFILES.get(a.runtime_profile,(a.baud,a.parity))
+    runtime_baud=a.runtime_baud or runtime_baud;runtime_parity=a.runtime_parity or runtime_parity
+    validate_host(a.host,runtime_baud,runtime_parity,a.stop_bits,optimized)
     payload=validate(a.image,a.platform)
+    if optimized:
+        if a.stop_bits!=1:p.error('runtime profiles require one stop bit')
+        payload=prepare(payload,json.loads((a.platform.parent/'manifest.json').read_text()),runtime_parity,a.buffer_console)
     session=a.session.resolve()
     identity=dict(protocol='KP2',baud=a.baud,framing=f'8{a.parity}{a.stop_bits}',platform_sha256=digest(a.platform),
                   source_sha256=digest(a.image),host_sha256=digest(a.host),read_only=a.read_only)
+    if optimized:identity.update(runtime_profile=a.runtime_profile,runtime_baud=runtime_baud,runtime_parity=runtime_parity,
+        adapter=a.adapter,read_ahead=a.read_ahead,buffer_console=a.buffer_console,upload_sha256=hashlib.sha256(payload).hexdigest())
     if a.mode=='boot':
         session.mkdir(parents=True,exist_ok=False)
         shutil.copyfile(a.image,session/'disk.img')
@@ -218,7 +237,17 @@ def main():
     lock=(session/'session.lock').open('a+b')
     try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     except BlockingIOError:lock.close();raise ValueError('session already in use')
-    try:port=Port(a.serial,a.baud,a.parity,a.stop_bits)
+    adapter=None
+    if a.adapter=='pl2303hxd':
+        from pl2303 import USBRate
+        adapter=USBRate(a.serial)
+    open_baud,open_parity=a.baud,a.parity
+    if optimized and a.mode=='attach':
+        runtime=json.loads((session/'runtime.json').read_text())
+        open_baud,open_parity=runtime['settings']['baud'],runtime['settings']['parity']
+    try:
+        port=Port(a.serial,open_baud,open_parity,a.stop_bits)
+        if adapter:port.settings['usb']=adapter.set(open_baud,parity={'N':0,'O':1,'E':2}[open_parity],stop_bits=a.stop_bits)
     except BaseException:lock.close();raise
     master=slave=None
     result=dict(complete=False,simulated_serial=port.simulated,physical_qualification=False,execution_requested=False)
@@ -249,13 +278,21 @@ def main():
             result['execution_requested']=True
             write_all(port.fd,b'G',time.monotonic()+a.timeout)
             termios.tcdrain(port.fd)
-        command=host_command(a.host,a.serial,port.fd,session/'disk.img',console,session,a.read_only,a.baud,a.parity,a.stop_bits)
+            if optimized:
+                runtime=transition(port,runtime_baud,runtime_parity,adapter)
+                (session/'runtime.json').write_text(json.dumps(runtime,indent=2)+'\n')
+        selected=port.settings
+        generation=next_generation(session) if optimized else None
+        command=host_command(a.host,a.serial,port.fd,session/'disk.img',console,session,a.read_only,
+            selected['baud'],selected['parity'],a.stop_bits,a.read_ahead,generation)
+        if adapter:command.append('--serial-verified')
         if a.test_corrupt_read_reply_once:command.append('--test-corrupt-read-reply-once')
         result['host_exit']=run_host(command,port.fd,session,master)
         result['complete']=result['host_exit']==0
         return result['host_exit']
     finally:
         port.close();lock.close()
+        if adapter:adapter.close()
         if master is not None:os.close(master);os.close(slave)
         (session/f'launch-{time.time_ns()}.json').write_text(json.dumps(result,indent=2)+'\n')
 

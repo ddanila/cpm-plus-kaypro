@@ -18,7 +18,7 @@ def main():
     assert symbols(ROOT/'build/boot.lst')['stage_end']<=4096
     assert sy['loader']>=0xc03c and platform[0x33]==0xc3
     files={'boot.rom':ROOT/'build/boot.rom','platform.cim':ROOT/'build/platform.cim','kaypro.img':ROOT/'out/kaypro.img'}
-    manifest=dict(serial_handoff=1,diagnostic_protocol='D3',rom_version=version[0].decode('ascii'),protocol='KP2',framing='19200 8O1',hardware_executed=False,
+    manifest=dict(runtime_link=1,runtime_offsets={k:sy[k]-0xc000 for k in ('runtime_config','console_buffering')},serial_handoff=1,diagnostic_protocol='D3',rom_version=version[0].decode('ascii'),protocol='KP2',framing='19200 8O1',hardware_executed=False,
       sha256={k:hashlib.sha256(p.read_bytes()).hexdigest() for k,p in files.items()},
       sizes={k:p.stat().st_size for k,p in files.items()},
       rom_used=symbols(ROOT/'build/boot.lst')['stage_end'],

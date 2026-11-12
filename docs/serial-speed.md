@@ -114,3 +114,88 @@ Recommended order: measure protocol overhead, qualify 8N1 and batching with
 recoverable RAM software, then consider a reversible channel-A clock adapter
 if a true increase beyond the present clock limit is wanted. No clock
 modification was made during this campaign.
+
+## RAM runtime optimization
+
+The runtime now has an independent framing transition. The V3 ROM still boots
+at its selected framing; the uploaded platform exchanges CRC-protected `RT`
+frames before changing channel A, verifies the new link, and waits for the
+host's execution acknowledgement before requesting disk data. Failure restores
+the original framing and waits for a recovery acknowledgement. The keyboard
+channel and EPROM are unchanged. Warm boots retain the selected runtime.
+
+Explicit experimental launcher options:
+
+```sh
+python3 tools/serial_boot.py boot --serial /dev/cu.usbserial-2110 \
+  --session local/fast-session --runtime-profile fast --adapter pl2303hxd \
+  --read-ahead 4 --buffer-console
+```
+
+Use the same options with `attach` to resume that session. `compat` selects
+19200 8O1 and `fast` selects 19800 8N1; `--runtime-baud` and
+`--runtime-parity` allow controlled comparisons. Bootstrap `--baud`, `--parity`
+and `--stop-bits` retain their previous meaning. Existing invocations without
+a runtime profile retain their behavior until hardware qualification promotes
+a faster default.
+
+The optional `pl2303hxd` backend is macOS-specific and requires libusb. It maps
+the exact serial path through IORegistry to the qualified 067b:2303 revision
+0400 device, rejects ambiguity, writes the HXD divisor with explicit framing,
+and verifies USB line-coding readback. It does not detach the serial driver.
+The host preserves an already configured descriptor; it rejects a physical
+19800 adoption that would require reprogramming the UART. `posix` retains the
+portable termios backend. A USB readback is not a physical clock measurement.
+
+Read-ahead accepts 1, 2, 4 or 8 records. The resident cache has eight slots;
+the host's batch size is independently bounded. Every host start increments
+a globally locked persistent 32-bit generation without wrapping, advancing past
+a copied session's generation too. The initial namespace is randomized to
+reduce collisions between independent hosts.
+The guest uses advertised CAPS/EPOC support to validate cached data and clears
+the cache after errors, writes, warm boots and generation changes. Unsupported
+hosts are served without cache reuse. Do not edit a session disk behind its
+running host. Cache coherence checks consume serial traffic, so the largest
+batch need not be fastest.
+
+Optional console buffering reuses N4's existing 32-byte bulk operation and
+flushes at newline, input/status, disk operations and warm boot. Local CRT
+rendering remains immediate. Hosts without bulk support retain byte output.
+NetDisk CRC uses the shared Robotron-qualified Z80 table implementation;
+all 256 entries and 1024 executed state/byte combinations are checked against
+an independent bitwise oracle. The installed ROM's CRC routine is unchanged.
+
+`tools/reload_runtime.py` builds a CP/M RAM reload transient for a bench
+supervisor that already owns the link. It is not a standalone unattended
+uploader: after `RELOAD READY`, that supervisor must stop the disk host,
+perform the runtime exchange, and restart the matching disk session. The
+emulator tests the copy and recovery paths before physical use.
+
+`tools/benchmark.py` runs repeatable, independently verified file copies and
+timed warm boots/console commands through caller-supplied session callbacks.
+The 32 KiB fixture consists of `(offset*73+19)&255`; `READTEST` built from
+`tools/hardware/read-bench.asm` checks its sequential read length and checksum.
+Physical benchmark and soak reports will distinguish tested settings from
+experimental options; emulator results alone do not qualify a serial rate.
+
+### Physical checkpoint, 2026-11-12
+
+All four direct 19200/19800, 8O1/8N1 combinations passed 4096-byte
+bidirectional checks with zero reported RR1 errors. A RAM-only reload then
+booted CP/M at verified adapter 19800 8N1 (calculated divisor rate 19801),
+with table CRC, four-record read-ahead and buffered console. TYPE HELLO.TXT
+returned the expected text and A> prompt. No reset or ROM change was required.
+The host was closed at the owner's requested stopping point.
+
+Five-repeat baseline medians: 8 KiB copy 32.805 s, 32 KiB copy 73.971 s,
+warm boot 2.721 s. Matching only the adapter to 19800 gave 32.793 s,
+73.612 s and 2.722 s respectively: no material gain by itself.
+These copies were independently byte-verified. Initial fixture installation
+required a warm boot after an offline disk edit caused an FCB checksum error.
+
+Read-ahead tuning, optimized throughput measurements, the 30-minute/1 MiB
+soak and final qualification of the last source changes remain pending.
+The earlier full software gate passed; focused tests also passed after the
+later cache-miss, generation and custom-rate changes. An earlier emulator
+reattach attempt failed because its host binary was rebuilt mid-test; rerunning
+with a frozen binary passed. Faster defaults are deliberately not promoted.

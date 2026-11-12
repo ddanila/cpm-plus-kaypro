@@ -13,9 +13,15 @@ def configure(fd,baud=19200,parity='O',stop_bits=1,simulated=False):
         attrs[2]|=termios.PARENB
         if parity=='O':attrs[2]|=termios.PARODD
     speed=getattr(termios,'B'+str(baud),None)
-    attrs[4]=attrs[5]=speed if speed is not None else termios.B38400
+    attrs[4]=attrs[5]=speed if speed is not None else baud if sys.platform=='darwin' and not simulated else termios.B38400
     attrs[6][termios.VMIN]=attrs[6][termios.VTIME]=0
-    termios.tcsetattr(fd,termios.TCSANOW,attrs)
+    try:termios.tcsetattr(fd,termios.TCSANOW,attrs)
+    except termios.error:
+        if speed is not None or sys.platform!='darwin' or simulated:raise
+        # Apple drivers may reject the custom integer here but accept it
+        # through IOSSIOSPEED. The checked USB backend is applied afterward.
+        attrs[4]=attrs[5]=termios.B38400
+        termios.tcsetattr(fd,termios.TCSANOW,attrs)
     if speed is None and not simulated:
         if sys.platform=='darwin':
             fcntl.ioctl(fd,0x80085402,array.array('L',[baud])) # IOSSIOSPEED

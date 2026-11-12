@@ -19,7 +19,7 @@ build/cpm3.sys: src/cpm3-bios.asm tools/regenerate_cpm3.py third_party/cpm3/bdos
 	$(PYTHON) tools/regenerate_cpm3.py --adapter-address 0xc000 --top-page 0xbf --metadata-policy gencpm --output $@
 build/system.inc: build/cpm3.sys tools/system_contract.py
 	$(PYTHON) tools/system_contract.py
-build/platform.cim: src/platform.asm src/link.asm src/serial-platform.asm src/serial-common.asm src/console.asm src/keyboard.asm build/system.inc $(wildcard third_party/juku-common/platform/*.asm) third_party/juku-common/platform/rom-abi.inc $(ZMAC)
+build/platform.cim: src/platform.asm src/link.asm src/runtime-link.asm src/serial-platform.asm src/serial-common.asm src/serial-crc-table.asm src/console.asm src/keyboard.asm build/system.inc $(wildcard third_party/juku-common/platform/*.asm) third_party/juku-common/platform/rom-abi.inc $(ZMAC)
 	$(ZMAC) --zmac -o $@ -o build/platform.lst $<
 build/boot-stage.cim: src/boot-stage.asm src/rom-version.asm src/console.asm src/monitor.asm src/link.asm $(ZMAC)
 	$(ZMAC) --zmac -o $@ -o build/boot-stage.lst $<

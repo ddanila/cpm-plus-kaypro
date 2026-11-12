@@ -10,7 +10,7 @@ from terminal import Screen,Keys
 ROOT=Path(__file__).resolve().parents[1]
 def symbols(file):
     return {m[1]:int(m[2],16) for line in Path(file).read_text().splitlines()
-            if (m:=re.fullmatch(r'(\w+)\s+([0-9A-F]{1,4})\s+\d+',line))}
+            if (m:=re.fullmatch(r'(\w+)\s+=?([0-9A-F]{1,4})\s+\d+',line))}
 def main():
     lib=C.CDLL(str(ROOT/'build'/('board-test.dylib' if sys.platform=='darwin' else 'board-test.so')))
     lib.board_new.restype=C.c_void_p

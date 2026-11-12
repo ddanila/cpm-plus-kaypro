@@ -252,10 +252,174 @@
     }
   ],
   "cpm": {
-    "passed": false,
-    "failure": "Local host build a0a47d8 lacked --serial-parity; rejected options after guest execution. Owner observed CP/M 3 boot error CPM3.SYS. Correct pinned host rebuilt, but attach did not recover loader.",
+    "passed": true,
     "pinned_host_revision": "4e5fd259ee008035eeb4f042c2fcca51c509ed28",
-    "fix": "Host option-parser preflight before opening serial port, creating session or uploading. Regression covers boot and attach."
+    "fix": "Host option-parser preflight before opening serial port, creating session or uploading. Regression covers boot and attach.",
+    "initial_failure": "Local host build a0a47d8 lacked --serial-parity; rejected options after guest execution. Owner observed CP/M 3 boot error CPM3.SYS. Correct pinned host rebuilt, but attach did not recover loader.",
+    "cases": [
+      {
+        "test": "CP/M prompt",
+        "seconds": 15.927734417
+      },
+      {
+        "test": "TYPE HELLO.TXT"
+      },
+      {
+        "test": "DIR"
+      },
+      {
+        "test": "SCREEN"
+      },
+      {
+        "test": "binary copy independently verified",
+        "bytes": 8192,
+        "sha256": "dded5d20af664319fcf79f235e54f79a9fbf57fa90ba4c61369be03e35be5189"
+      },
+      {
+        "test": "warm boot",
+        "round": 1
+      },
+      {
+        "test": "warm boot",
+        "round": 2
+      },
+      {
+        "test": "warm boot",
+        "round": 3
+      },
+      {
+        "test": "host reattach without reset"
+      },
+      {
+        "test": "soak round",
+        "round": 1,
+        "bytes": 8192,
+        "seconds": 32.48882775
+      },
+      {
+        "test": "soak round",
+        "round": 2,
+        "bytes": 8192,
+        "seconds": 32.654391292000014
+      },
+      {
+        "test": "soak round",
+        "round": 3,
+        "bytes": 8192,
+        "seconds": 32.81617162500001
+      },
+      {
+        "test": "soak round",
+        "round": 4,
+        "bytes": 8192,
+        "seconds": 33.069748333999996
+      },
+      {
+        "test": "soak round",
+        "round": 5,
+        "bytes": 8192,
+        "seconds": 33.45855225
+      },
+      {
+        "test": "soak round",
+        "round": 6,
+        "bytes": 8192,
+        "seconds": 33.52244641699997
+      },
+      {
+        "test": "soak round",
+        "round": 7,
+        "bytes": 8192,
+        "seconds": 33.73192758299996
+      },
+      {
+        "test": "soak round",
+        "round": 8,
+        "bytes": 8192,
+        "seconds": 33.946996917000035
+      },
+      {
+        "test": "soak round",
+        "round": 9,
+        "bytes": 8192,
+        "seconds": 34.282203959000014
+      },
+      {
+        "test": "soak round",
+        "round": 10,
+        "bytes": 8192,
+        "seconds": 34.528432666000015
+      },
+      {
+        "test": "post-soak host reconnect"
+      }
+    ],
+    "host_sha256": "c75b75dcc37cb8ae7f3a0b208756fb7a319e0c2d83ebd292650cf4cb170a3243",
+    "initial_test_host_summary": [
+      "00072521 INFO  stop exit=0 rx=27504 tx=68665 requests=2088 reads=558 records=558 writes=68 retries=0 boot-restarts=0 target-resets=0 reconnects=0 uart-errors=0 available-memory=0"
+    ],
+    "soak": {
+      "seconds": 334.511080333,
+      "rounds": [
+        {
+          "round": 1,
+          "bytes": 8192,
+          "seconds": 32.48882775
+        },
+        {
+          "round": 2,
+          "bytes": 8192,
+          "seconds": 32.654391292000014
+        },
+        {
+          "round": 3,
+          "bytes": 8192,
+          "seconds": 32.81617162500001
+        },
+        {
+          "round": 4,
+          "bytes": 8192,
+          "seconds": 33.069748333999996
+        },
+        {
+          "round": 5,
+          "bytes": 8192,
+          "seconds": 33.45855225
+        },
+        {
+          "round": 6,
+          "bytes": 8192,
+          "seconds": 33.52244641699997
+        },
+        {
+          "round": 7,
+          "bytes": 8192,
+          "seconds": 33.73192758299996
+        },
+        {
+          "round": 8,
+          "bytes": 8192,
+          "seconds": 33.946996917000035
+        },
+        {
+          "round": 9,
+          "bytes": 8192,
+          "seconds": 34.282203959000014
+        },
+        {
+          "round": 10,
+          "bytes": 8192,
+          "seconds": 34.528432666000015
+        }
+      ],
+      "verified_bytes": 81920
+    },
+    "closed_host_summaries": [
+      "00072521 INFO  stop exit=0 rx=27504 tx=68665 requests=2088 reads=558 records=558 writes=68 retries=0 boot-restarts=0 target-resets=0 reconnects=0 uart-errors=0 available-memory=0",
+      "00356196 INFO  stop exit=0 rx=150328 tx=353950 requests=7032 reads=2724 records=2724 writes=680 retries=0 boot-restarts=0 target-resets=0 reconnects=0 uart-errors=0 available-memory=0"
+    ],
+    "source_image_unchanged": true,
+    "final_state": "A> prompt, production host running at 19200 8O1"
   },
   "limitations": [
     "19800 host requests produced no matching replies; actual physical bit rates not measured.",

@@ -5,11 +5,15 @@ Replacement 4 KiB **KP2 serial boot ROM**, nonbanked Digital Research CP/M Plus
 The external serial link supplies the virtual disk, defaulting to **19200 8O1**.
 V3 offers local serial settings, diagnostics and explicit discovery; the selected
 configuration is carried into CP/M.
-This is a software-qualified hardware candidate. On PC003, the owner reports
+Serial boot and CP/M file operations have also passed on physical PC003.
+The owner reports
 that V1 showed garbage at first power-on, then displayed the waiting banner
 after reset. Cold-start reliability remains unresolved. Physical serial upload
-at 19200 8O1 is now verified, including CRC rejection and return to the monitor. The first CP/M attempt stopped because of a stale
-host executable; CP/M hardware qualification is still pending. See the
+at 19200 8O1 is now verified, including CRC rejection and return to the monitor. CP/M reached its prompt in 15.9 seconds with the pinned host; binary copying,
+warm boots and host reattachment passed. A subsequent 5m34s soak verified ten
+8 KiB copies and ten more warm boots, with zero host retries or UART errors.
+The first attempt exposed a
+stale host executable, now rejected by launcher preflight. See the
 [physical test report](reports/hardware-pc003-v3-20261112.json). Physical floppy support is deferred.
 
 The guest filesystem loader, BIOS and session approach reuse cpm-plus-1715.

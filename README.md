@@ -107,8 +107,10 @@ Probe/scan do not upload or execute code. Reports and captures go under `local/`
 
 The highest selector is conventionally called 19200; the modeled 5.0688 MHz
 clock and /16 BRG divider calculate to 19800 at SIO x16. The screen distinguishes
-these values. Host scan tries both 19200 and 19800, plus 9600. Physical clock
-and adapter compatibility remain unverified; custom-rate requests may be rejected.
+these values. Host scan tries both 19200 and 19800, plus 9600. The physical [speed campaign](docs/serial-speed.md) passed bidirectional 19800
+using the PL2303HXD USB divisor workaround; ordinary macOS custom-rate
+requests were unreliable. Target bit timing was not measured directly.
+No faster bidirectional x1 candidate passed; 19200 remains the default.
 
 ## Boot or reattach
 

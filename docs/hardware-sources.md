@@ -92,3 +92,15 @@ traditional 19200 label. Selector 14 yields 9600. This is a model calculation,
 not a measurement of PC003. V3 displays both nominal and calculated rates.
 The test API can explicitly inject RR1 errors and change RR0 modem bits;
 this verifies diagnostic software, not analog serial sampling or real parity.
+
+## Physical speed campaign (2026-11-12)
+
+The [manufacturer COM8116 frequency table](https://www.vintagecomputer.net/fjkraan/comp/divcomp/doc/SMC_BaudGen.pdf),
+printed page 282 (PDF page 19), independently confirms the 316.8 kHz maximum
+output with the 5.0688 MHz table, corresponding to 19800 at SIO x16. This
+corrects the earlier reliance on MAME alone for that calculation. PC003 passed
+bidirectional tests using the PL2303HXD divisor override at requested 19800.
+All tested x1 receive candidates failed, although short transmit patterns
+passed up to requested 316800. See [physical speed measurements](serial-speed.md).
+The byte-level emulator does not model x1 receive synchronization and cannot
+qualify such a physical link.

@@ -1,0 +1,460 @@
+{
+  "date": "2026-11-12",
+  "hardware_executed": true,
+  "machine": "PC003 Kaypro 2 PC81-240A / MK3884N",
+  "rom": "3.0.0 unchanged",
+  "base": "running serial CP/M Plus, no power cycles or target resets during campaign",
+  "trials": [
+    {
+      "selector": 15,
+      "wr4": 69,
+      "host_requested_baud": 19200,
+      "method": "Darwin termios speeds plus IOSSIOSPEED",
+      "complete": false,
+      "termios_readback": [
+        19200,
+        19200
+      ],
+      "tx_bytes": 257,
+      "tx_pattern_matches": false,
+      "echo_bytes": 2068,
+      "echo_matches": false,
+      "baseline_report_received": false,
+      "cpm_recovered": false
+    },
+    {
+      "selector": 15,
+      "wr4": 69,
+      "host_requested_baud": 19200,
+      "method": "standard termios when available; otherwise termios plus IOSSIOSPEED",
+      "complete": true,
+      "termios_readback": [
+        19200,
+        19200
+      ],
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 4096,
+      "echo_matches": true,
+      "target_received": 4096,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 7,
+      "wr4": 5,
+      "host_requested_baud": 19200,
+      "method": "standard termios when available; otherwise termios plus IOSSIOSPEED",
+      "complete": true,
+      "termios_readback": [
+        19200,
+        19200
+      ],
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 4096,
+      "echo_matches": false,
+      "target_received": 4096,
+      "rr1_errors": 80,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 15,
+      "wr4": 69,
+      "host_requested_baud": 19200,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_readback": [
+        19200,
+        19200
+      ],
+      "usb_rate": {
+        "requested": 19200,
+        "calculated_actual": 19230,
+        "coding": "38070080000108",
+        "error_percent": 0.15624999999999112
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 4096,
+      "echo_matches": true,
+      "target_received": 4096,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 10,
+      "wr4": 5,
+      "host_requested_baud": 38400,
+      "method": "standard termios when available; otherwise termios plus IOSSIOSPEED",
+      "complete": false,
+      "target_received": 0,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true,
+      "error": "Harness rejected >19800 before applying candidate; serial_format.configure range guard"
+    },
+    {
+      "selector": 10,
+      "wr4": 5,
+      "host_requested_baud": 38400,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_readback": [
+        38400,
+        38400
+      ],
+      "usb_rate": {
+        "requested": 38400,
+        "calculated_actual": 38461,
+        "coding": "9c060080000108",
+        "error_percent": 0.15885416666667762
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 0,
+      "echo_matches": false,
+      "target_received": 4075,
+      "rr1_errors": 80,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 11,
+      "wr4": 5,
+      "host_requested_baud": 57600,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_readback": [
+        57600,
+        57600
+      ],
+      "usb_rate": {
+        "requested": 57600,
+        "calculated_actual": 57692,
+        "coding": "a0050080000108",
+        "error_percent": 0.15972222222222499
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 0,
+      "echo_matches": false,
+      "target_received": 4095,
+      "rr1_errors": 80,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 12,
+      "wr4": 5,
+      "host_requested_baud": 76800,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_readback": [
+        76800,
+        76800
+      ],
+      "usb_rate": {
+        "requested": 76800,
+        "calculated_actual": 76923,
+        "coding": "38050080000108",
+        "error_percent": 0.16015625000000977
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 0,
+      "echo_matches": false,
+      "target_received": 4095,
+      "rr1_errors": 80,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 13,
+      "wr4": 5,
+      "host_requested_baud": 115200,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_readback": [
+        115200,
+        115200
+      ],
+      "usb_rate": {
+        "requested": 115200,
+        "calculated_actual": 115384,
+        "coding": "d0040080000108",
+        "error_percent": 0.15972222222222499
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 0,
+      "echo_matches": false,
+      "target_received": 3831,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 14,
+      "wr4": 5,
+      "host_requested_baud": 153600,
+      "method": "standard termios when available; otherwise termios plus IOSSIOSPEED",
+      "complete": false,
+      "error": "(22, 'Invalid argument')",
+      "target_received": 0,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 14,
+      "wr4": 5,
+      "host_requested_baud": 153600,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_rate_rejected": "(22, 'Invalid argument')",
+      "usb_rate": {
+        "requested": 153600,
+        "calculated_actual": 153846,
+        "coding": "9c040080000108",
+        "error_percent": 0.16015625000000977
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 0,
+      "echo_matches": false,
+      "target_received": 2887,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 15,
+      "wr4": 5,
+      "host_requested_baud": 316800,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_rate_rejected": "(22, 'Invalid argument')",
+      "usb_rate": {
+        "requested": 316800,
+        "calculated_actual": 316831,
+        "coding": "2f030080000108",
+        "error_percent": 0.009785353535352037
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 0,
+      "echo_matches": false,
+      "target_received": 1404,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 15,
+      "wr4": 69,
+      "host_requested_baud": 19800,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_rate_rejected": "(22, 'Invalid argument')",
+      "usb_rate": {
+        "requested": 19800,
+        "calculated_actual": 19801,
+        "coding": "2f070080000108",
+        "error_percent": 0.005050505050507859
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 4096,
+      "echo_matches": true,
+      "target_received": 4096,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 8,
+      "wr4": 5,
+      "host_requested_baud": 28800,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_readback": [
+        28800,
+        28800
+      ],
+      "usb_rate": {
+        "requested": 28800,
+        "calculated_actual": 28846,
+        "coding": "d0060080000108",
+        "error_percent": 0.15972222222222499
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 4096,
+      "echo_matches": false,
+      "target_received": 4096,
+      "rr1_errors": 80,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 9,
+      "wr4": 5,
+      "host_requested_baud": 32081,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_rate_rejected": "(22, 'Invalid argument')",
+      "usb_rate": {
+        "requested": 32081,
+        "calculated_actual": 32085,
+        "coding": "bb060080000108",
+        "error_percent": 0.012468439263124687
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 0,
+      "echo_matches": false,
+      "target_received": 4080,
+      "rr1_errors": 80,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 15,
+      "wr4": 69,
+      "host_requested_baud": 19800,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_rate_rejected": "(22, 'Invalid argument')",
+      "usb_rate": {
+        "requested": 19800,
+        "calculated_actual": 19801,
+        "coding": "2f070080000108",
+        "error_percent": 0.005050505050507859
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 4096,
+      "echo_matches": true,
+      "target_received": 4096,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 15,
+      "wr4": 69,
+      "host_requested_baud": 19800,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_rate_rejected": "(22, 'Invalid argument')",
+      "usb_rate": {
+        "requested": 19800,
+        "calculated_actual": 19801,
+        "coding": "2f070080000108",
+        "error_percent": 0.005050505050507859
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 4096,
+      "echo_matches": true,
+      "target_received": 4096,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    },
+    {
+      "selector": 15,
+      "wr4": 69,
+      "host_requested_baud": 19800,
+      "method": "PL2303HXD divisor override after termios/IOSSIOSPEED",
+      "complete": true,
+      "termios_rate_rejected": "(22, 'Invalid argument')",
+      "usb_rate": {
+        "requested": 19800,
+        "calculated_actual": 19801,
+        "coding": "2f070080000108",
+        "error_percent": 0.005050505050507859
+      },
+      "tx_bytes": 512,
+      "tx_pattern_matches": true,
+      "echo_bytes": 4096,
+      "echo_matches": true,
+      "target_received": 4096,
+      "rr1_errors": 0,
+      "baseline_report_received": true,
+      "cpm_recovered": true
+    }
+  ],
+  "transient_sha256": "bf7be2adf123e16da009d0282cf88be6f9ee5ebd36eccae7b08d09d6943a8ef7",
+  "emulator_recovery_tests": {
+    "complete": true,
+    "cases": [
+      "echo",
+      "error",
+      "timeout",
+      "no-ack"
+    ],
+    "scope": "RAM-loaded transient with stub BDOS/warm boot; no bit-level x1 or electrical qualification"
+  },
+  "sources": [
+    {
+      "title": "Zilog Z80 SIO technical manual; asynchronous receive x1 requires external bit synchronization",
+      "url": "https://www.hartetechnologies.com/manuals/Zilog/Zilog%20Z80-SIO%20Technical%20Manual.pdf"
+    },
+    {
+      "title": "SMC COM8116 manufacturer frequency options, printed page 282, PDF page 19",
+      "url": "https://www.vintagecomputer.net/fjkraan/comp/divcomp/doc/SMC_BaudGen.pdf"
+    }
+  ],
+  "scope": [
+    "512-byte ascending transmit pattern and 4096-byte deterministic random receive/echo per trial.",
+    "No oscilloscope measurement of target clock; USB actual rates are divider calculations, verified line-coding readback, not bit-time measurements.",
+    "x1 short transmit successes do not establish sustained throughput or a usable bidirectional CP/M transport.",
+    "RR1 error zero alone does not prove reliable receive: incomplete blocks count as failures.",
+    "Initial IOSSIOSPEED-at-19200 trial corrupted input; ordinary configuration and direct USB override baselines passed. Initial recovery required software-only host reconfiguration; no user action.",
+    "Two harness/driver configuration failures are recorded separately and excluded from target speed conclusions."
+  ],
+  "cpm19800": {
+    "requested_baud": 19800,
+    "host_timing_baud": 19200,
+    "method": "USB HXD override on running production host; guest selector 15/x16 unchanged",
+    "cases": [
+      {
+        "copy": "FAST1.BIN",
+        "verified_bytes": 8192,
+        "warm_boot": true,
+        "seconds": 36.960616916999925
+      },
+      {
+        "copy": "FAST2.BIN",
+        "verified_bytes": 8192,
+        "warm_boot": true,
+        "seconds": 35.01029333300016
+      },
+      {
+        "copy": "FAST3.BIN",
+        "verified_bytes": 8192,
+        "warm_boot": true,
+        "seconds": 35.21699862500009
+      }
+    ],
+    "adapter": {
+      "requested": 19800,
+      "calculated_actual": 19801,
+      "coding": "2f070080000108",
+      "error_percent": 0.005050505050507859
+    },
+    "complete": true,
+    "restored_19200_cpm": true,
+    "restored_adapter_coding": "004b0000000108",
+    "closed_host_summary": "00149998 INFO  stop exit=0 rx=70814 tx=130161 requests=4966 reads=888 records=888 writes=204 retries=0 boot-restarts=0 target-resets=0 reconnects=0 uart-errors=0 available-memory=0"
+  },
+  "complete": true,
+  "final_state": "CP/M A>, production host running at ordinary 19200 8O1",
+  "conclusion": "Highest tested bidirectional host setting: 19800 x16 with HXD override. All x1 receive candidates failed; short TX patterns passed through requested 316800. No new ROM or target reset needed.",
+  "source_image_unchanged": true
+}

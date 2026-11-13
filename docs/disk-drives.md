@@ -59,14 +59,10 @@ The sector model does not represent flux, damaged address marks, exact angular
 placement of sectors, or partially overwritten physical magnetic tracks. A raw
 image cannot preserve those details. Software qualification is not evidence of
 successful physical floppy I/O. The resident sector transfer now uses the
-board's HALT/NMI handshake after real PC003 polling transfers reported lost data. Physical C:/D: reads and writes remain
-**unqualified** until the following gates pass on PC003:
-
-1. Read owner-supplied known-good disks in both drives; copy to B: repeatedly
-   and compare the files. Check absent media and keyboard/serial responsiveness.
-2. Explicitly identify an expendable, already-formatted disk. Enable writes
-   only for its drive, copy/read back a pattern, rename/delete, and test actual
-   write protection. Repeat reading after disk relogin and warm boot.
+board's HALT/NMI handshake after real PC003 polling transfers reported lost data. On PC003, C: has now passed full-disk format/read verification and an 8 KiB
+CP/M file write/read comparison, repeated after warm boot. D: remains
+unqualified. Further coverage still needed includes physical write protection,
+rename/delete, and compatibility with independently formatted historical media.
 
 On 2026-11-13, PC003 booted this four-drive build over serial. The owner
 confirmed that C: and D: each accessed the correct physical drive. An attempted
@@ -85,8 +81,8 @@ is available as the application TPA: CP/M's SCB reports the actual limit.
 A later [formatting session](../reports/floppy-format-20261113/hardware.json)
 verified all ten sectors of track 0 on C:, but track 1 sector 0 retained CRC
 errors after retries. With the same diskette in D:, the formatter stopped
-because it could not detect index. Neither drive has passed full-disk or
-physical-file-copy qualification.
+because it could not detect index. At that point neither drive had passed full-disk or physical-file-copy
+qualification.
 
 The owner subsequently reported that D:'s LED never lit although its motor
 was spinning. The 81-241 sheet 2B has one shared motor-control signal and
@@ -97,3 +93,13 @@ A subsequent direct selection diagnostic repeated C/off/D/off twice without
 FDC commands. The owner confirmed that only C:'s LED lit; D:'s stayed dark.
 D:'s select signal, cabling/jumper configuration and drive now need physical
 verification; another formatting attempt alone cannot resolve this.
+
+With a replacement expendable diskette in C:, all 40 tracks and 400 sectors
+formatted and verified without retries. An 8192-byte PATTERN.BIN was copied
+from A: to C: and back to B:, independently compared on the host, then reread
+and compared after a warm boot. Both comparisons matched SHA256
+`dded5d20af664319fcf79f235e54f79a9fbf57fa90ba4c61369be03e35be5189`.
+This strongly suggests the first diskette was faulty; it does not resolve D:.
+
+After this test, `FORMAT C LOCK` disabled physical writes for both drives.
+The replacement diskette retains PATTERN.BIN for subsequent read checks.

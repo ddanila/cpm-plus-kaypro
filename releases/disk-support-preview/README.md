@@ -2,7 +2,8 @@
 
 Matched RAM platform and CP/M image for ROM 3.1.0. No new ROM burn.
 A:/B: are serial disks; C:/D: are physical Kaypro II SSDD floppies, read-only
-by default. Full-disk and filesystem I/O remain unqualified; see the partial
+by default. C: has passed full-disk format/read verification and an 8 KiB file
+write/read test, including a reread after warm boot. D: remains unqualified; see the
 [PC003 hardware results](../../reports/floppy-format-20261113/hardware.json).
 
 Use a new session with the pinned shared host and current launcher:

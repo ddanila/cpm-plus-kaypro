@@ -39,10 +39,37 @@
       "test": "write-free labelled drive-select test, two rounds",
       "source": "host completed sequence; owner observed LEDs",
       "result": "C LED lit during C selection; D LED stayed dark during D selection. No FDC commands or disk-data access. Ended deselected, motors off, write mask zero."
+    },
+    {
+      "drive": "C",
+      "medium": "replacement expendable diskette",
+      "test": "format and verify",
+      "result": "PASS: all 40 tracks, 400 sectors, 204800 bytes verified E5; no retries"
+    },
+    {
+      "drive": "C",
+      "medium": "replacement expendable diskette",
+      "test": "CP/M file write/read",
+      "result": "PASS: PIP C:PATTERN.BIN=A:PATTERN.BIN, then PIP B:NEWC.BIN=C:PATTERN.BIN; host independently compared all 8192 bytes",
+      "sha256": "dded5d20af664319fcf79f235e54f79a9fbf57fa90ba4c61369be03e35be5189"
+    },
+    {
+      "drive": "C",
+      "medium": "replacement expendable diskette",
+      "test": "warm boot and repeat read",
+      "result": "PASS: Ctrl-C, then PIP B:READC2.BIN=C:PATTERN.BIN; host comparison matched the same 8192-byte source"
+    },
+    {
+      "test": "end-of-test write protection",
+      "result": "FORMAT C LOCK returned Physical writes disabled; CP/M A> prompt restored. Host remains running."
     }
   ],
   "physical_writes_enabled": false,
-  "whole_disk_format_qualified": false,
-  "physical_filesystem_copy_qualified": false,
-  "limits": "No known-good media. Cannot isolate media, drive, or remaining driver issues. Raw pattern test not yet run; owner moved the disk to D before that test."
+  "whole_disk_format_qualified": true,
+  "physical_filesystem_copy_qualified": true,
+  "limits": "D remains unqualified (dark activity LED and no detected index). Physical write-protect, rename/delete, and compatibility with independently formatted historical media remain untested. Replacement medium passing strongly suggests the first medium was faulty, but does not isolate every possible intermittent drive fault.",
+  "qualified_drives": [
+    "C"
+  ],
+  "qualification_scope": "C: full E5 format/read verification and one 8 KiB CP/M binary file write/read, repeated after warm boot."
 }

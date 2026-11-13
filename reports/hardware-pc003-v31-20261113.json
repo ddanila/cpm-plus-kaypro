@@ -1,0 +1,101 @@
+{
+  "date": "2026-11-13",
+  "machine": "PC003 Kaypro 2 PC81-240A",
+  "hardware_executed": true,
+  "full_hardware_qualification": false,
+  "rom_version": "3.1.0",
+  "rom_sha256_from_matched_build": "c60b077edc3c4c5aa6c6cdaf12fcc8fdfdb0ba889b464f807f93e6626451573a",
+  "rom_readback_verified_this_session": false,
+  "platform_sha256": "ee9e8ad017ab74f0ad0917e302b27eda6981a87d3e85b65f11fe9201f7a6c653",
+  "source_image_sha256": "4941cb2e782df0e812b538fbfb488fb26a2880f455819cb8ea095ce56a331d60",
+  "host_sha256": "4089ed4bc7878a274e2d2b2894d73e0a40b26cec8b16eb982d6955111de06928",
+  "framing": "19200 8O1",
+  "rom_probe": {
+    "mode": "probe",
+    "port": "/dev/cu.usbserial-2110",
+    "complete": true,
+    "events": [],
+    "settings": {
+      "baud": 19200,
+      "parity": "O",
+      "stop_bits": 1,
+      "simulated": false
+    },
+    "version_reply": "4b5056332e312e300d0a",
+    "rom": {
+      "selector": 15,
+      "wr4": 69,
+      "version": [
+        3,
+        1,
+        0
+      ],
+      "parity": "O",
+      "stop_bits": 1,
+      "multiplier": 16,
+      "nonce": "90677c6a"
+    }
+  },
+  "corrupt_upload": {
+    "corrupt_upload_rejected": true,
+    "response": "ROM rejected upload: 15; reset and retry",
+    "rom_after": {
+      "selector": 15,
+      "wr4": 69,
+      "version": [
+        3,
+        1,
+        0
+      ],
+      "parity": "O",
+      "stop_bits": 1,
+      "multiplier": 16,
+      "nonce": "a79c64b2"
+    }
+  },
+  "cases": [
+    {
+      "test": "CP/M prompt",
+      "seconds": 20.643392334
+    },
+    {
+      "test": "TYPE HELLO.TXT"
+    },
+    {
+      "test": "DIR"
+    },
+    {
+      "test": "SCREEN"
+    },
+    {
+      "test": "binary copy independently verified",
+      "bytes": 8192,
+      "sha256": "dded5d20af664319fcf79f235e54f79a9fbf57fa90ba4c61369be03e35be5189"
+    },
+    {
+      "test": "warm boot",
+      "round": 1
+    },
+    {
+      "test": "warm boot",
+      "round": 2
+    },
+    {
+      "test": "warm boot",
+      "round": 3
+    },
+    {
+      "test": "host reattach without reset"
+    }
+  ],
+  "initial_host_summary": [
+    "00079374 INFO  stop exit=0 rx=27496 tx=68665 requests=2088 reads=558 records=558 writes=68 retries=0 boot-restarts=0 target-resets=0 reconnects=0 uart-errors=0 available-memory=0"
+  ],
+  "remaining": [
+    "Physical CRT confirmation",
+    "Physical reset recovery",
+    "Optimized runtime profiles not tested in this session",
+    "UART fault injection not tested on hardware"
+  ],
+  "evidence": "local/pc003-rom31-20261113"
+}

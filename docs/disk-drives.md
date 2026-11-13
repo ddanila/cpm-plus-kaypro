@@ -66,6 +66,13 @@ successful physical floppy I/O. Physical C:/D: reads and writes remain
    only for its drive, copy/read back a pattern, rename/delete, and test actual
    write protection. Repeat reading after disk relogin and warm boot.
 
+On 2026-11-13, PC003 booted this four-drive build over serial. The owner
+confirmed that C: and D: each accessed the correct physical drive. An attempted
+read from a suspect diskette failed; no known-good medium was available. This
+confirms physical drive selection only, not successful sector or filesystem
+reads. Physical writes remained disabled. See the
+[hardware observation report](../reports/hardware-pc003-four-drive-20261113.json).
+
 No archival disk is used for write qualification. No new ROM burn is needed.
 The generated system now begins at 9A00h (previously 9D00h), with BIOS entry
 B900h and the resident platform still at C000h. The build derives these values

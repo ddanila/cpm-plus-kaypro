@@ -1,0 +1,26 @@
+{
+  "machine": "PC003",
+  "date": "2026-11-13",
+  "rom_version": "3.1.0",
+  "platform_sha256": "37e8171e11b8334d38da66234bd72c6a7a39fb5c3a1269228aa13d6cfd199d7e",
+  "runtime": "19200 8N1",
+  "physical_floppy_write_mask": 0,
+  "observations": [
+    {
+      "source": "host console and logs",
+      "result": "ROM detected and four-drive CP/M booted to A> after physical Reset"
+    },
+    {
+      "source": "owner observation",
+      "result": "C: and D: access the correct respective physical floppy drives"
+    },
+    {
+      "source": "owner observation",
+      "result": "Attempted diskette read unsuccessful; owner describes diskette as quite bad; no known-good medium available"
+    }
+  ],
+  "physical_drive_selection_confirmed": true,
+  "physical_floppy_read_qualified": false,
+  "physical_floppy_write_qualified": false,
+  "limitations": "The unsuccessful read does not distinguish media, drive, or driver faults. No physical writes enabled or tested."
+}

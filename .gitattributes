@@ -1,0 +1,4 @@
+# Disk images may begin with a long non-NUL reserved track; force binary diff.
+*.img binary
+*.cim binary
+*.rom binary

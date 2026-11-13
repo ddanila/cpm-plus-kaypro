@@ -42,8 +42,10 @@ The last command requires writes enabled for C:. Use Ctrl-C to relog disks
 after insertion/removal. Do not change a disk during an operation. Sector
 writes are synchronous read/modify/write, preserving the other three 128-byte
 records; there is no dirty write-back cache. A separate [format-and-verify utility](formatting.md) can initialize an expendable
-diskette. Floppy boot, physical A:/B: remapping and double-sided formats are
-outside this release.
+diskette. A separate [whole-disk image utility](system-disk.md) can create stock
+CP/M 2.2 boot disks, including their reserved boot track, from a file on serial
+B:. Floppy boot of our CP/M Plus port, physical A:/B: remapping and double-sided
+formats are outside this release.
 
 ## Qualification and limitations
 

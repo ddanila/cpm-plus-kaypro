@@ -15,7 +15,7 @@ warm boots and host reattachment passed. A subsequent 5m34s soak verified ten
 8 KiB copies and ten more warm boots, with zero host retries or UART errors.
 The first attempt exposed a
 stale host executable, now rejected by launcher preflight. See the
-[physical test report](reports/hardware-pc003-v3-20261112.json). Physical floppy support is implemented as an emulator-qualified candidate; physical-drive qualification is pending. See [drive mapping and qualification](docs/disk-drives.md).
+[physical test report](reports/hardware-pc003-v3-20261112.json). Physical C: has passed full-disk formatting and file write/read tests on PC003; D: remains unqualified. See [drive mapping and qualification](docs/disk-drives.md) and [creating stock-ROM system disks](docs/system-disk.md).
 
 The guest filesystem loader, BIOS and session approach reuse cpm-plus-1715.
 Juku's N4 console and NetDisk v3 guest code is included directly from the pinned

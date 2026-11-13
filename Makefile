@@ -115,3 +115,10 @@ formatter-check: formatter board-test
 drive-select-check: formatter board-test
 	$(ZMAC) --zmac -o build/drvled.cim -o build/drvled.lst src/drive-select-test.asm
 	$(PYTHON) tests/check_drive_select.py
+
+.PHONY: imager imager-check
+imager: all
+	$(PYTHON) extras/build_image.py
+imager-check: imager board-test
+	$(ZMAC) --zmac -o build/image-bdos.cim tests/image-bdos.asm
+	$(PYTHON) tests/check_image.py

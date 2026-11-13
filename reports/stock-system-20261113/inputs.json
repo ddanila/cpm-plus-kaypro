@@ -1,0 +1,41 @@
+{
+  "disk_source": "https://www.classiccmp.org/dunfield/img42841/d/kayproii.zip",
+  "member": "KAYPRO1.IMD",
+  "catalog": "https://github.com/mamedev/mame/blob/master/hash/kaypro.xml",
+  "catalog_software": "cpm22",
+  "rom_source": "https://www.mrynet.com/FTP/os/Kaypro/kaypro_roms/",
+  "geometry": {
+    "tracks": 40,
+    "heads": 1,
+    "sectors": 10,
+    "sector_size": 512,
+    "first_sector_id": 0
+  },
+  "files": {
+    "kayproii.zip": {
+      "size": 685572,
+      "sha256": "5e5975d91e857502e3060fb06e28eda25224a4380260847030f24127e1f7771b",
+      "sha1": "0b4fceaf9624f5466739e6b73838863325b38b33"
+    },
+    "source/KAYPRO1.IMD": {
+      "size": 188479,
+      "sha256": "7ed253c0067956634543511c496d581d525b3bad7b8b591eca7be7e9bca70f18",
+      "sha1": "c4158b4f84066514af2b74cb6d0915f661402819"
+    },
+    "kaypro.img": {
+      "size": 204800,
+      "sha256": "908f5288eeba4b22021d26711b6e6a73ec2e1e9c4ef1a87a04cd96fa0995f3b0",
+      "sha1": "9591c9bb04e8a5a5d1ee19cd2877528e20f006ea"
+    },
+    "roms/kayproii/81-232.u47": {
+      "size": 4096,
+      "sha256": "0f72f1cecb5a66f7d623156a69c0ea4036e47eb4df8e8fa165c0e95bd45067a0",
+      "sha1": "cd9f45cc3546bcaad7254b92c5d501c40e2ef0b2"
+    },
+    "roms/kayproii/81-146.u43": {
+      "size": 2048,
+      "sha256": "cde431c9e506edf11261f7e7d52fd60b1a43fe2d9ea0d3e06f271d4cab4884fa",
+      "sha1": "5cb880083b94bd8220aac1f87d537db7cfeb9013"
+    }
+  }
+}

@@ -24,3 +24,8 @@ The platform now uses HALT/NMI for physical-sector transfers. `FORMAT.COM`
 is the matching destructive formatter/diagnostic; see
 [formatting instructions](../../docs/formatting.md). Emulator evidence for
 this revision is in [floppy-format-20261113](../../reports/floppy-format-20261113).
+
+`IMAGE.COM` writes a canonical 200 KiB stock system image from serial B: to
+physical C:, including its boot track, and can read the entire disk back.
+See [system-disk instructions](../../docs/system-disk.md). Historical CP/M disk
+images and stock ROMs remain external inputs.

@@ -1,0 +1,17 @@
+{
+  "hardware_executed": false,
+  "complete": true,
+  "checks": [
+    "400 raw sector writes + immediate verification + separate full readback; D untouched; NMI vector restored",
+    "invalid cylinder, write-protected/absent media and CRC error rejected",
+    "resident mismatch and source size error rejected before writes; existing readback refused",
+    "full C ERASE command including BDOS reads and resident selection restoration; invalid commands never write",
+    "full C READ command including BDOS output-byte comparison and close",
+    "full write command stops at first controller error and disables physical writes"
+  ],
+  "converter_checks": [
+    "Raw/IMD roundtrip",
+    "Compressed sectors and reverse physical interleave map to correct sector IDs",
+    "Truncated, duplicate, foreign-geometry and CRC-marked sectors rejected"
+  ]
+}

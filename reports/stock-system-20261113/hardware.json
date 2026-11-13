@@ -1,6 +1,5 @@
 {
   "machine": "PC003 Kaypro 2, PC81-240A",
-  "installed_rom": "serial boot 3.1.0",
   "target": "physical C: / first floppy drive",
   "hardware_executed": true,
   "complete": true,
@@ -16,12 +15,20 @@
   "independent_full_readback_comparison": "exact match",
   "physical_writes_after_test": "disabled",
   "D_written": false,
-  "host_after_test": "running; CP/M Plus A> prompt",
   "limitations": [
-    "Physical stock-ROM boot not performed; stock 81-232 boot of full readback passed independently in MAME",
     "D remains unqualified",
     "No new physical write-protect test"
   ],
   "platform_sha256": "9f2f0f2f415cfe5475a24e552eb8654f87298a18946c9b7b1de8c81ac93121e2",
-  "imager_sha256": "2919116c873abce8808ca91e36d8e8138cca0b74a9dd139a386f11308ca8eb8b"
+  "imager_sha256": "2919116c873abce8808ca91e36d8e8138cca0b74a9dd139a386f11308ca8eb8b",
+  "installed_rom_during_creation": "serial boot 3.1.0",
+  "host_after_creation": "running; CP/M Plus A> prompt",
+  "physical_stock_rom_boot": {
+    "result": "pass",
+    "evidence": "Owner reported successful boot using this diskette and the stock ROM on the same machine, PC003.",
+    "machine": "PC003",
+    "rom": "Stock ROM (PC003 original identified previously as 81-232)",
+    "observer": "owner",
+    "date": "2026-11-13"
+  }
 }

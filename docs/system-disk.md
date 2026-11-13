@@ -82,3 +82,7 @@ protection and CRC errors, plus full commands with a BDOS filesystem fixture.
 
 PC003 hardware creation and full read-back results are in the
 [2026-11-13 qualification report](../reports/stock-system-20261113/README.md).
+
+The owner subsequently confirmed that this diskette boots on PC003 with its
+stock ROM. The qualification report records this physical boot separately
+from the automated read-back and MAME checks.

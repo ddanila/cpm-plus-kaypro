@@ -9,13 +9,18 @@ SHA-1. Input sources and hashes are in `inputs.json`; downloads remain local.
 - Raw SHA-256: `908f5288eeba4b22021d26711b6e6a73ec2e1e9c4ef1a87a04cd96fa0995f3b0`.
 - The read-back, re-encoded as IMD, boots under stock 81-232 in MAME to
   `KAYPRO II`, `64k CP/M v 2.2`, `A>`.
+- Owner subsequently confirmed successful physical boot from this diskette
+  with the stock ROM on the same PC003 machine.
 - C: directory listed successfully under the running serial CP/M Plus port.
 - D: was not written. Physical filesystem writes are disabled afterward.
 
-This is a stock CP/M **2.2** system disk. The hardware still runs serial ROM
-3.1.0 and CP/M Plus; no firmware was changed and no reset was required.
-A physical stock-ROM boot is not claimed. MAME uses the real boot and character
-ROMs with an unused synthetic keyboard MCU ROM; keyboard operation is outside
+This is a stock CP/M **2.2** system disk. Creation and read-back ran under
+serial ROM 3.1.0 and CP/M Plus without a reset. The owner then installed the
+stock ROM and successfully booted the physical diskette on PC003, completing
+the physical boot qualification. This result is owner-observed; the automated
+console transcript covers creation and read-back only.
+
+MAME uses the real boot and character ROMs with an unused synthetic keyboard MCU ROM; keyboard operation is outside
 that independent boot check. This qualifies the early single-sided II/81-232
 combination, not every later machine sold under the Kaypro 2 name.
 

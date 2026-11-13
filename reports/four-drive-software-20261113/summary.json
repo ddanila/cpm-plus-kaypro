@@ -55,7 +55,9 @@
     "Juku/Robotron board integration tests",
     "shared host runner/core/full PTY regression suite",
     "A/B journaling, duplicate writes, read-only geometry, locking and malformed-journal regression",
-    "ROM boot, monitor, launcher, resident driver, runtime negotiation and CRC checks"
+    "ROM boot, monitor, launcher, resident driver, runtime negotiation and CRC checks",
+    "clean sparse dependency fetch, board/probe compilation and FDC/driver regressions",
+    "read-only CP/M with injected corrupt serial disk reply"
   ],
   "pending": [
     "macOS/Linux CI on pinned revisions",

@@ -15,7 +15,7 @@ def main():
   git('config','remote.origin.promisor','true')
   git('config','remote.origin.partialclonefilter','blob:none')
   git('sparse-checkout','init','--cone')
-  paths=['common','machines/kaypro2','tests','third_party/cpu/chips'] if name=='dac-emulation' else ['host','sync','tests/fixtures/jukuhost']
+  paths=['common','machines/kaypro2','machines/juku','tests','third_party/cpu/chips'] if name=='dac-emulation' else ['host','sync','tests/fixtures/jukuhost']
   git('sparse-checkout','set',*paths)
   git('fetch','--filter=blob:none','--depth','1','origin',pins[name]);git('checkout','--detach',pins[name])
   assert git('rev-parse','HEAD')==pins[name]

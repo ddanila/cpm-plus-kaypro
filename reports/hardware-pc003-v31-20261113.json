@@ -92,10 +92,14 @@
     "00079374 INFO  stop exit=0 rx=27496 tx=68665 requests=2088 reads=558 records=558 writes=68 retries=0 boot-restarts=0 target-resets=0 reconnects=0 uart-errors=0 available-memory=0"
   ],
   "remaining": [
-    "Physical CRT confirmation",
     "Physical reset recovery",
     "Optimized runtime profiles not tested in this session",
     "UART fault injection not tested on hardware"
   ],
-  "evidence": "local/pc003-rom31-20261113"
+  "evidence": "local/pc003-rom31-20261113",
+  "physical_crt": {
+    "confirmed_by": "owner",
+    "readable": true,
+    "stable": true
+  }
 }

@@ -86,13 +86,19 @@
     },
     {
       "test": "host reattach without reset"
+    },
+    {
+      "test": "automatic recovery after physical Reset"
+    },
+    {
+      "test": "binary copy survives physical Reset",
+      "bytes": 8192
     }
   ],
   "initial_host_summary": [
     "00079374 INFO  stop exit=0 rx=27496 tx=68665 requests=2088 reads=558 records=558 writes=68 retries=0 boot-restarts=0 target-resets=0 reconnects=0 uart-errors=0 available-memory=0"
   ],
   "remaining": [
-    "Physical reset recovery",
     "Optimized runtime profiles not tested in this session",
     "UART fault injection not tested on hardware"
   ],
@@ -101,5 +107,36 @@
     "confirmed_by": "owner",
     "readable": true,
     "stable": true
+  },
+  "baseline_hardware_qualification_passed": true,
+  "reset_recovery": {
+    "host_restarted": false,
+    "user_action": "Physical Reset button",
+    "rom_identified": [
+      3,
+      1,
+      0
+    ],
+    "cpm_prompt_returned": true,
+    "file_visible_to_cpm": true,
+    "copied_file_verified_bytes": 8192,
+    "host_log": [
+      "00000000 INFO  start version=0.4.0-m8 port=/dev/cu.usbserial-2110",
+      "00000000 INFO  platform=Darwin timer=CLOCK_MONOTONIC resolution-ms=1 available-memory=0",
+      "00000000 INFO  phase=artifact-validation",
+      "00000001 INFO  phase=serial-open requested=19200 8O1 flow=none",
+      "00000002 INFO  serial applied=19200 8O1 flow=none",
+      "00000063 INFO  phase=discover serial=19200 8O1",
+      "00002046 INFO  checked NetDisk request; target runtime confirmed",
+      "00002047 INFO  phase=netdisk",
+      "00002047 INFO  serving A: writable+journal, 19200 baud 8O1, N3",
+      "00082003 INFO  phase=rediscover reason=no-valid-runtime-traffic",
+      "00082090 INFO  phase=discover serial=19200 8O1",
+      "00088593 INFO  phase=runtime-link boot-complete serial=19200 8O1",
+      "00088667 INFO  phase=discover serial=19200 8O1",
+      "00088667 INFO  checked NetDisk request; target runtime confirmed",
+      "00088667 INFO  phase=netdisk",
+      "00088667 INFO  serving A: writable+journal, 19200 baud 8O1, N3"
+    ]
   }
 }

@@ -92,3 +92,8 @@ The owner subsequently reported that D:'s LED never lit although its motor
 was spinning. The 81-241 sheet 2B has one shared motor-control signal and
 separate drive-select outputs, so motor activity does not confirm selection.
 The earlier claim that both physical drives were selected is withdrawn for D:.
+
+A subsequent direct selection diagnostic repeated C/off/D/off twice without
+FDC commands. The owner confirmed that only C:'s LED lit; D:'s stayed dark.
+D:'s select signal, cabling/jumper configuration and drive now need physical
+verification; another formatting attempt alone cannot resolve this.

@@ -34,6 +34,11 @@
       "drive": "D",
       "source": "owner observation after formatting attempt",
       "result": "Activity LED never lit, but motor was spinning. Drive selection remains unconfirmed; motor activity alone is insufficient."
+    },
+    {
+      "test": "write-free labelled drive-select test, two rounds",
+      "source": "host completed sequence; owner observed LEDs",
+      "result": "C LED lit during C selection; D LED stayed dark during D selection. No FDC commands or disk-data access. Ended deselected, motors off, write mask zero."
     }
   ],
   "physical_writes_enabled": false,

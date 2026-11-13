@@ -104,3 +104,9 @@ build/manifest.json: out/kaypro.img build/boot.rom tools/build_contract.py
 
 build/screen-test.cim: src/screen-test.asm $(ZMAC)
 	$(ZMAC) --zmac -o $@ $<
+
+.PHONY: formatter formatter-check
+formatter: all
+	$(PYTHON) extras/build_format.py
+formatter-check: formatter board-test
+	$(PYTHON) tests/check_format.py

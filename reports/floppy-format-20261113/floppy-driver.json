@@ -1,0 +1,15 @@
+{
+  "hardware_executed": false,
+  "cases": [
+    "C/D selection, record offsets, track boundaries, seek/restore",
+    "300-baud keyboard stream survives spin-up, seek and sector transfer",
+    "physical writes disabled by default",
+    "write-through read/modify/write preserves every neighboring byte",
+    "C permission does not authorize D writes",
+    "physical write protection enforced",
+    "CRC fault exhausts bounded retries and next read recovers",
+    "missing media returns error without hanging",
+    "invalid cylinder/record rejected"
+  ],
+  "complete": true
+}

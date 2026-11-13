@@ -2,7 +2,8 @@
 
 Matched RAM platform and CP/M image for ROM 3.1.0. No new ROM burn.
 A:/B: are serial disks; C:/D: are physical Kaypro II SSDD floppies, read-only
-by default. Physical floppy reads and writes are not yet qualified.
+by default. Full-disk and filesystem I/O remain unqualified; see the partial
+[PC003 hardware results](../../reports/floppy-format-20261113/hardware.json).
 
 Use a new session with the pinned shared host and current launcher:
 
@@ -17,3 +18,8 @@ for permissions and qualification gates, and ../../reports/four-drive-software-2
 for software evidence. CP/M components retain the notices in
 ../../third_party/cpm3/LICENSE.md; original project code is MIT licensed.
 This preview does not assert completion of both OS CI gates.
+
+The platform now uses HALT/NMI for physical-sector transfers. `FORMAT.COM`
+is the matching destructive formatter/diagnostic; see
+[formatting instructions](../../docs/formatting.md). Emulator evidence for
+this revision is in [floppy-format-20261113](../../reports/floppy-format-20261113).

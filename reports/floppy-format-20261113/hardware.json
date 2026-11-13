@@ -1,0 +1,38 @@
+{
+  "machine": "PC003",
+  "date": "2026-11-13",
+  "rom": "3.1.0",
+  "hardware_executed": true,
+  "platform_sha256": "9f2f0f2f415cfe5475a24e552eb8654f87298a18946c9b7b1de8c81ac93121e2",
+  "formatter_sha256": "e9882c60690df5a923a8d23b2d6b51eacd3d3aa062a0bb9618299c768c053c76",
+  "runtime": "19200 8N1",
+  "observations": [
+    {
+      "test": "polled format/sector transfer",
+      "result": "lost data (status 04); emulator did not reproduce all physical timing failures"
+    },
+    {
+      "test": "RAM reload",
+      "result": "new HALT/NMI platform booted without user Reset or power cycle"
+    },
+    {
+      "drive": "C",
+      "test": "format and verify track 0",
+      "result": "PASS: ten sectors, every byte E5"
+    },
+    {
+      "drive": "C",
+      "test": "format and verify track 1",
+      "result": "FAIL: sector 0 CRC (status 08), persisted across three track-format attempts and three reads per attempt"
+    },
+    {
+      "drive": "D",
+      "test": "same diskette moved by owner, format attempt",
+      "result": "STOPPED before Write Track: index edge not detected (utility FD, FDC 00)"
+    }
+  ],
+  "physical_writes_enabled": false,
+  "whole_disk_format_qualified": false,
+  "physical_filesystem_copy_qualified": false,
+  "limits": "No known-good media. Cannot isolate media, drive, or remaining driver issues. Raw pattern test not yet run; owner moved the disk to D before that test."
+}

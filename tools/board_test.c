@@ -22,7 +22,7 @@ static int call_limited(kaypro2 *m,unsigned addr,unsigned bc,unsigned sp,unsigne
  for(unsigned i=0;i<limit;i++){
   if(key_sent<key_stream && i%83334==0){kaypro2_receive(m,1,65+(key_sent%26));key_sent++;}
   kaypro2_run(m,1);
-  if(m->cpu.pins&Z80_HALT){key_stream=0;return m->cpu.cpu.a;}
+  if((m->cpu.pins&Z80_HALT) && (m->cpu.cpu.pc==0x400a || m->cpu.cpu.pc==1)){key_stream=0;return m->cpu.cpu.a;}
  }
  return -1;
 }

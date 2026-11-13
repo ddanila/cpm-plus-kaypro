@@ -2,3 +2,4 @@
 *.img binary
 *.cim binary
 *.rom binary
+*.COM binary

@@ -1,0 +1,6 @@
+{
+  "platform_sha256": "9f2f0f2f415cfe5475a24e552eb8654f87298a18946c9b7b1de8c81ac93121e2",
+  "command": "FORMAT C ERASE",
+  "physical_geometry": "40 x 10 x 512, sector IDs 0..9",
+  "format_sha256": "e9882c60690df5a923a8d23b2d6b51eacd3d3aa062a0bb9618299c768c053c76"
+}

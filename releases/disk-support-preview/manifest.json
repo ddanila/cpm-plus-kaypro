@@ -6,7 +6,7 @@
   "runtime_offsets": {
     "runtime_config": 6795,
     "console_buffering": 1337,
-    "floppy_write_mask": 1952
+    "floppy_write_mask": 1909
   },
   "serial_handoff": 1,
   "diagnostic_protocol": "D3",
@@ -16,7 +16,7 @@
   "hardware_executed": false,
   "sha256": {
     "boot.rom": "c60b077edc3c4c5aa6c6cdaf12fcc8fdfdb0ba889b464f807f93e6626451573a",
-    "platform.cim": "37e8171e11b8334d38da66234bd72c6a7a39fb5c3a1269228aa13d6cfd199d7e",
+    "platform.cim": "9f2f0f2f415cfe5475a24e552eb8654f87298a18946c9b7b1de8c81ac93121e2",
     "kaypro.img": "173a5955e514c52b81e7da421dca74aac15db2bedbf47cfb665ed32448c93c72"
   },
   "sizes": {

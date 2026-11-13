@@ -1,0 +1,15 @@
+{
+  "hardware_executed": false,
+  "complete": true,
+  "checks": [
+    "actual Z80 format + read-back of all 400 sectors on each drive; C never modifies D",
+    "physical write protection rejects format without changing media",
+    "absent disk returns bounded error",
+    "invalid drive and track rejected",
+    "invalid/bare commands never write; LOCK disables writes",
+    "resident code mismatch rejects destructive command",
+    "full FORMAT C ERASE command formats only C and enables only C writes",
+    "controller fault stops format, disables writes; persistent read CRC exhausts three attempts",
+    "raw TEST command writes/reads exact 512-byte pattern on track zero only, then disables writes"
+  ]
+}

@@ -41,8 +41,9 @@ PIP C:EXAMPLE.TXT=B:EXAMPLE.TXT
 The last command requires writes enabled for C:. Use Ctrl-C to relog disks
 after insertion/removal. Do not change a disk during an operation. Sector
 writes are synchronous read/modify/write, preserving the other three 128-byte
-records; there is no dirty write-back cache. Floppy boot, formatting, physical
-A:/B: remapping and double-sided formats are outside this release.
+records; there is no dirty write-back cache. A separate [format-and-verify utility](formatting.md) can initialize an expendable
+diskette. Floppy boot, physical A:/B: remapping and double-sided formats are
+outside this release.
 
 ## Qualification and limitations
 
@@ -57,7 +58,8 @@ MAME cross-checks selected controller error outcomes independently.
 The sector model does not represent flux, damaged address marks, exact angular
 placement of sectors, or partially overwritten physical magnetic tracks. A raw
 image cannot preserve those details. Software qualification is not evidence of
-successful physical floppy I/O. Physical C:/D: reads and writes remain
+successful physical floppy I/O. The resident sector transfer now uses the
+board's HALT/NMI handshake after real PC003 polling transfers reported lost data. Physical C:/D: reads and writes remain
 **unqualified** until the following gates pass on PC003:
 
 1. Read owner-supplied known-good disks in both drives; copy to B: repeatedly
@@ -79,3 +81,9 @@ B900h and the resident platform still at C000h. The build derives these values
 from GENCPM and checks overlap; `build/system-map.json` and `build/manifest.json`
 are authoritative. The system boundary is not a claim that every byte below it
 is available as the application TPA: CP/M's SCB reports the actual limit.
+
+A later [formatting session](../reports/floppy-format-20261113/hardware.json)
+verified all ten sectors of track 0 on C:, but track 1 sector 0 retained CRC
+errors after retries. With the same diskette in D:, the formatter stopped
+because it could not detect index. Neither drive has passed full-disk or
+physical-file-copy qualification.

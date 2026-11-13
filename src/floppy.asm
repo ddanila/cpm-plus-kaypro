@@ -213,68 +213,54 @@ floppy_permission:
         ld hl,(dma)
         ld bc,128
         ldir
+        call floppy_nmi_begin
         ld hl,floppy_buffer
         ld bc,13h
-        ld de,02ffh
-        ld ix,256
+        ld d,2
         ld a,0a0h
         out (10h),a
 floppy_write_loop:
-        in a,(10h)
-        and 2
-        jr z,floppy_write_wait
+        halt
         outi
-        ld e,0ffh
         jp nz,floppy_write_loop
         dec d
         jr nz,floppy_write_loop
         jr floppy_finish
-floppy_write_wait:
-        dec e
-        jr nz,floppy_write_loop
-        in a,(10h)
-        bit 0,a
-        jp z,error
-        dec ix
-        ld a,ixh
-        or ixl
-        jr nz,floppy_write_loop
-        call floppy_abort
-        jp error
 floppy_read_sector:
+        call floppy_nmi_begin
         ld hl,floppy_buffer
         ld bc,13h
-        ld de,02ffh
-        ld ix,256
+        ld d,2
         ld a,80h
         out (10h),a
 floppy_read_loop:
-        in a,(10h)
-        and 2
-        jr z,floppy_read_wait
+        halt
         ini
-        ld e,0ffh
         jp nz,floppy_read_loop
         dec d
         jr nz,floppy_read_loop
 floppy_finish:
+        call floppy_nmi_end
         call floppy_wait
         and 0fch            ; CRC, lost data, RNF, deleted/fault, WP, ready
         ret z
         jp error
-floppy_read_wait:
-        dec e
-        jr nz,floppy_read_loop
-        in a,(10h)
-        bit 0,a
-        jp z,error
-        dec ix
-        ld a,ixh
-        or ixl
-        jr nz,floppy_read_loop
-        call floppy_abort
-        jp error
+; PC81-240A gates DRQ/INTRQ to NMI only while HALTed. An early command
+; error wakes the remaining iterations through INTRQ; status still rejects
+; the entire operation. Never call console/keyboard services inside this loop.
+; The private NMI vector is restored before returning to CP/M.
+floppy_nmi_begin:
+        ld hl,(66h)
+        ld (floppy_saved_nmi),hl
+        ld hl,45edh         ; RETN
+        ld (66h),hl
+        ret
+floppy_nmi_end:
+        ld hl,(floppy_saved_nmi)
+        ld (66h),hl
+        ret
 floppy_write_mask: db 0
+floppy_saved_nmi: dw 0
 floppy_idle_count: db 0
 floppy_tracks: db 0ffh,0ffh
 floppy_track_ptr: dw 0

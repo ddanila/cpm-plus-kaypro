@@ -110,3 +110,8 @@ formatter: all
 	$(PYTHON) extras/build_format.py
 formatter-check: formatter board-test
 	$(PYTHON) tests/check_format.py
+
+.PHONY: drive-select-check
+drive-select-check: formatter board-test
+	$(ZMAC) --zmac -o build/drvled.cim -o build/drvled.lst src/drive-select-test.asm
+	$(PYTHON) tests/check_drive_select.py

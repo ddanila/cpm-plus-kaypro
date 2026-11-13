@@ -55,3 +55,11 @@ all four records back and compares every byte. It does not create a file or
 format the disk, and it overwrites any existing boot data in that sector. It
 always disables physical writes afterwards. A pass qualifies only that sector,
 not the rest of the diskette or its filesystem.
+
+For a write-free drive-selection/LED check, run `make drive-select-check` and
+install `build/drvled.cim` as `DRVLED.COM` on a serial disk. `B:DRVLED` runs two
+labelled rounds: off for three seconds, C selected with motors on for ten,
+off for three, D selected with motors on for ten. It issues no FDC commands
+and does not seek or access disk data. It disables physical writes and ends
+with both drives deselected and motors off. Observe the LEDs separately from
+motor noise: the board has shared motor control but separate drive selects.

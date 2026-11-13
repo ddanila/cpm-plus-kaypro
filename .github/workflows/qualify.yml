@@ -26,7 +26,7 @@ jobs:
       - run: python -m pip install pexpect==4.9.0
       - run: python tools/dependencies.py
       - run: python tools/qualify.py --dac build/deps/dac-emulation --host-repo build/deps/8080-cosim --out local/qualification
-      - run: make formatter-check DAC=build/deps/dac-emulation PYTHON=python
+      - run: make formatter-check drive-select-check DAC=build/deps/dac-emulation PYTHON=python
       - uses: actions/upload-artifact@v4
         if: always()
         with:

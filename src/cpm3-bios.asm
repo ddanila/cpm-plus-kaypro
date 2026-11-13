@@ -197,14 +197,28 @@ set$jumps:
 seldsk:
         lxi     h,0
         mov     a,c
-        cpi     1
+        cpi     4
         rnc
         push    b
         push    d
         call    a$seldsk
         pop     d
         pop     b
-        lxi     h,xdph0
+        mov     a,h
+        ora     l
+        rz
+        mov     a,c
+        add     a
+        lxi     h,dphtable
+        add     l
+        mov     l,a
+        mvi     a,0
+        adc     h
+        mov     h,a
+        mov     e,m
+        inx     h
+        mov     d,m
+        xchg
         ret
 
 ready:  mvi     a,true
@@ -242,35 +256,65 @@ move:   ldax    d
 ccp$name:       db      'CCP     COM'
 ccp$msg:        db      13,10,'Kaypro BIOS cannot load CCP.COM$'
 
-; Prefix: WRITE, READ, LOGIN, INIT, relative drive, bank.  The XDPH begins at
-; the translation pointer and has the CP/M 3 non-banked 25-byte layout.
-                dw      a$write,a$read,return,return
-                db      0,0
-xdph0:          dw      trans,0,0,0,0,0,dpb0,csv0,alv0,bcb0,0ffffh,0
-                db      0
-
-; Forty 128-byte logical records per physical side.
+dphtable: dw xdph0,xdph1,xdph2,xdph3
+                dw a$write,a$read,return,return
+                db 0,0
+xdph0: dw trans,0,0,0,0,0,dpb0,csv0,alv0,bcb0,0ffffh,0
+                db 0
+                dw a$write,a$read,return,return
+                db 1,0
+xdph1: dw trans,0,0,0,0,0,dpb0,csv1,alv1,bcb1,0ffffh,0
+                db 0
+                dw a$write,a$read,return,return
+                db 2,0
+xdph2: dw trans,0,0,0,0,0,dpb2,csv2,alv2,bcb2,0ffffh,0
+                db 0
+                dw a$write,a$read,return,return
+                db 3,0
+xdph3: dw trans,0,0,0,0,0,dpb2,csv3,alv3,bcb3,0ffffh,0
+                db 0
 trans: db 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
        db 21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40
-; 160 logical tracks, 40 records, four reserved tracks, 390 x 2K blocks.
+; native800 serial disks, 128-byte BIOS records.
 dpb0: dw 40
       db 4,15,0
       dw 389,127
       db 0c0h,0
       dw 32,4
       db 0,0
-
+; Kaypro II SSDD: 195 x 1K blocks after one reserved track.
+; Software deblocking keeps the BIOS interface at 128 bytes.
+dpb2: dw 40
+      db 3,7,0
+      dw 194,63
+      db 0c0h,0
+      dw 16,1
+      db 0,0
         dseg
-csv0:   ds      32
-; GENCPM enables double allocation vectors: two ceil(390/8) arrays.
-alv0:   ds      98
-dirbuf0:ds      128
-; Non-banked directory BCB: drive FFh means no buffer currently assigned;
-; bytes 10..11 are its 128-byte buffer address.
-bcb0:   db      0ffh,0,0,0,0,0,0,0,0,0
-        dw      dirbuf0
-        db      0,0,0
-        ds      64
-stack$top equ   $
-
+csv0: ds 32
+alv0: ds 98
+dirbuf0: ds 128
+bcb0: db 0ffh,0,0,0,0,0,0,0,0,0
+        dw dirbuf0
+        db 0,0,0
+csv1: ds 32
+alv1: ds 98
+dirbuf1: ds 128
+bcb1: db 0ffh,0,0,0,0,0,0,0,0,0
+        dw dirbuf1
+        db 0,0,0
+csv2: ds 16
+alv2: ds 50
+dirbuf2: ds 128
+bcb2: db 0ffh,0,0,0,0,0,0,0,0,0
+        dw dirbuf2
+        db 0,0,0
+csv3: ds 16
+alv3: ds 50
+dirbuf3: ds 128
+bcb3: db 0ffh,0,0,0,0,0,0,0,0,0
+        dw dirbuf3
+        db 0,0,0
+        ds 64
+stack$top equ $
         end

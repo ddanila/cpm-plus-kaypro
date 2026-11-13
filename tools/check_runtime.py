@@ -10,13 +10,20 @@ from check_drivers import symbols
 ROOT=Path(__file__).resolve().parents[1]
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--host',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--read-only',action='store_true');p.add_argument('--corrupt-read',action='store_true');p.add_argument('--alternate',action='store_true',help='select 9600 8E2 using the ROM keyboard');p.add_argument('--optimized',action='store_true');p.add_argument('--auto',action='store_true');p.add_argument('--read-ahead',type=int,default=4);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--host',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--read-only',action='store_true');p.add_argument('--corrupt-read',action='store_true');p.add_argument('--alternate',action='store_true',help='select 9600 8E2 using the ROM keyboard');p.add_argument('--optimized',action='store_true');p.add_argument('--auto',action='store_true');p.add_argument('--read-ahead',type=int,default=4);p.add_argument('--disks',action='store_true',help='qualify A/B serial and C/D physical images');a=p.parse_args()
     a.out.mkdir(parents=True,exist_ok=False)
     wire,device=pty.openpty();terminal,console=pty.openpty();keyboard_r,keyboard_w=os.pipe()
     for fd in (wire,device,terminal,console):tty.setraw(fd)
     image=ROOT/'out/kaypro.img';disk=a.out/'disk.img';shutil.copyfile(image,disk)
     log=(a.out/'emulator.log').open('wb');hostlog=(a.out/'host-process.log').open('wb')
-    emu=subprocess.Popen([str(ROOT/'build/kaypro-probe'),str(ROOT/'build/boot.rom'),str(wire),str(a.out/'ram.bin'),str(keyboard_r)],pass_fds=(wire,keyboard_r),stderr=log,env=dict(os.environ,KAYPRO_BOOT_SYNC=str(symbols(ROOT/'build/boot-stage.lst')['sync']),KAYPRO_KEYSERVICE=str(symbols(ROOT/'build/platform.lst')['keyservice'])))
+    disk_env={}
+    if a.disks:
+        from floppy_media import build as floppy_build
+        for letter in ('C','D'):
+            path=a.out/f'floppy-{letter}.img'
+            path.write_bytes(floppy_build({'HELLO.TXT':f'Floppy {letter}\r\n\x1a'.encode(),'PATTERN.BIN':bytes((i*17+(i>>7)+ord(letter))&255 for i in range(8192))}))
+            disk_env[f'KAYPRO_FLOPPY_{letter}']=str(path)
+    emu=subprocess.Popen([str(ROOT/'build/kaypro-probe'),str(ROOT/'build/boot.rom'),str(wire),str(a.out/'ram.bin'),str(keyboard_r)],pass_fds=(wire,keyboard_r),stderr=log,env=dict(os.environ,**disk_env,KAYPRO_BOOT_SYNC=str(symbols(ROOT/'build/boot-stage.lst')['sync']),KAYPRO_KEYSERVICE=str(symbols(ROOT/'build/platform.lst')['keyservice'])))
     host=None;output=bytearray();cases=[]
     result=dict(complete=False,hardware_executed=False,framing='9600 8E2' if a.alternate else '19200 8O1',rom_sha256=digest(ROOT/'build/boot.rom'),platform_sha256=digest(ROOT/'build/platform.cim'),image_sha256=digest(image),host_sha256=digest(a.host),emulator_sha256=digest(ROOT/'build/kaypro-probe'),cases=cases)
     def exact(n,timeout=5):
@@ -38,9 +45,21 @@ def main():
     def command(text):
         at=len(output);os.write(terminal,text.encode()+b'\r');data=expect(b'A>',at);passed(text);return data
     def start_host(mode='attach'):
-        return subprocess.Popen([sys.executable,str(ROOT/'tools/serial_boot.py'),'auto' if a.auto else mode,
+        previous=set((a.out/'session').glob('host-*.log'))
+        process=subprocess.Popen([sys.executable,str(ROOT/'tools/serial_boot.py'),'auto' if a.auto else mode,
             '--host',str(a.host),'--serial',os.ttyname(device),'--session',str(a.out/'session'),
-            '--console-pty',os.ttyname(console)]+(['--baud','9600','--parity','E','--stop-bits','2'] if a.alternate else [])+(['--runtime-profile','fast','--buffer-console','--read-ahead',str(a.read_ahead)] if a.optimized else [])+(['--read-only'] if a.read_only else [])+(['--test-corrupt-read-reply-once'] if a.corrupt_read and mode=='boot' else []),stdout=hostlog,stderr=hostlog)
+            '--console-pty',os.ttyname(console)]+(['--baud','9600','--parity','E','--stop-bits','2'] if a.alternate else [])+(['--runtime-profile','fast','--buffer-console','--read-ahead',str(a.read_ahead)] if a.optimized else [])+(['--floppy-write','CD'] if a.disks else [])+(['--read-only'] if a.read_only else [])+(['--test-corrupt-read-reply-once'] if a.corrupt_read and mode=='boot' else []),stdout=hostlog,stderr=hostlog)
+        # Wait for actual service readiness, not a scheduler-dependent 0.5 s.
+        # Discovery may legitimately take several seconds after a reconnect.
+        deadline=time.monotonic()+60
+        while time.monotonic()<deadline:
+            if process.poll() is not None:raise RuntimeError('launcher exited before serving')
+            current=set((a.out/'session').glob('host-*.log'))-previous
+            if any('serving A:' in path.read_text() for path in current):return process
+            time.sleep(.05)
+        process.terminate();process.wait(timeout=10)
+        raise TimeoutError('host never entered disk service')
+
     try:
         def monitor_ready(mode,selector,wr4):
             marker=f'monitor-ready mode={mode} selector={selector} wr4={wr4:02x}'
@@ -81,6 +100,22 @@ def main():
             files=inspect(disk.read_bytes())
             assert files[(0,'BINCOPY.BIN')].data==files[(0,'PATTERN.BIN')].data
             passed('multi-record binary copy independently verified')
+            if a.disks:
+                command('PIP B:SERIAL.BIN=A:PATTERN.BIN')
+                assert inspect((a.out/'session/disk-b.img').read_bytes())[(0,'SERIAL.BIN')].data==files[(0,'PATTERN.BIN')].data
+                command('PIP BACK.BIN=B:SERIAL.BIN')
+                assert inspect(disk.read_bytes())[(0,'BACK.BIN')].data==files[(0,'PATTERN.BIN')].data
+                passed('A/B writes and reads are independent')
+                for letter in ('C','D'):
+                    assert f'Floppy {letter}'.encode() in command(f'TYPE {letter}:HELLO.TXT')
+                    command(f'PIP B:FROM{letter}.BIN={letter}:PATTERN.BIN')
+                    command(f'PIP {letter}:WRITTEN.BIN=B:SERIAL.BIN')
+                    command(f'PIP B:BACK{letter}.BIN={letter}:WRITTEN.BIN')
+                    bf=inspect((a.out/'session/disk-b.img').read_bytes())
+                    assert bf[(0,f'BACK{letter}.BIN')].data==files[(0,'PATTERN.BIN')].data
+                    assert bf[(0,f'FROM{letter}.BIN')].data==bytes((i*17+(i>>7)+ord(letter))&255 for i in range(8192))
+                passed('C/D read, write and serial round-trip copies')
+
             at=len(output);os.write(terminal,b'KEYS\r');expect(b'KEYS START',at)
             os.write(keyboard_w,bytes(65+(i&15) for i in range(32)))
             assert b'KEYS PASS' in expect(b'A>',at);passed('local keyboard during BIOS disk writes')
@@ -91,14 +126,24 @@ def main():
             assert (0,'RENAMED.TXT') in inspect(disk.read_bytes());passed('rename persisted')
             at=len(output);os.write(terminal,b'\x03');expect(b'A>',at);passed('warm boot')
             host.terminate();host.wait(timeout=10);host=None
-            host=start_host();time.sleep(.5)
+            host=start_host()
             assert b'Kaypro 2' in command('TYPE RENAMED.TXT');passed('host restart without guest reset')
+            if a.disks:
+                command('PIP AGAIN.BIN=B:SERIAL.BIN')
+                assert inspect(disk.read_bytes())[(0,'AGAIN.BIN')].data==inspect((a.out/'session/disk-b.img').read_bytes())[(0,'SERIAL.BIN')].data
+                passed('B disk survives host restart')
         if a.auto:
             # Power cycle the modeled target only; the production host stays up.
             # No side channel tells the host which state/settings to expect.
             at=len(output)
             emu.terminate();emu.wait(timeout=10)
-            emu=subprocess.Popen([str(ROOT/'build/kaypro-probe'),str(ROOT/'build/boot.rom'),str(wire),str(a.out/'ram.bin'),str(keyboard_r)],pass_fds=(wire,keyboard_r),stderr=log,env=dict(os.environ,KAYPRO_RESET_TRIAL="1",KAYPRO_BOOT_SYNC=str(symbols(ROOT/'build/boot-stage.lst')['sync']),KAYPRO_KEYSERVICE=str(symbols(ROOT/'build/platform.lst')['keyservice'])))
+            if a.disks:
+                from floppy_media import inspect as floppy_inspect
+                for letter in ('C','D'):
+                    f=floppy_inspect((a.out/f'floppy-{letter}.img').read_bytes())
+                    assert f[(0,'WRITTEN.BIN')]==inspect(disk.read_bytes())[(0,'PATTERN.BIN')].data
+                passed('independent physical image filesystem verification')
+            emu=subprocess.Popen([str(ROOT/'build/kaypro-probe'),str(ROOT/'build/boot.rom'),str(wire),str(a.out/'ram.bin'),str(keyboard_r)],pass_fds=(wire,keyboard_r),stderr=log,env=dict(os.environ,**disk_env,KAYPRO_RESET_TRIAL="1",KAYPRO_BOOT_SYNC=str(symbols(ROOT/'build/boot-stage.lst')['sync']),KAYPRO_KEYSERVICE=str(symbols(ROOT/'build/platform.lst')['keyservice'])))
             expect(b'A>',at,120);passed('automatic ROM reset recovery with unchanged host')
             assert b'Kaypro 2' in command('TYPE HELLO.TXT')
             if not a.read_only:

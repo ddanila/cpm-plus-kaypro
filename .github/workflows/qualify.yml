@@ -7,7 +7,7 @@ jobs:
       matrix:
         os: [macos-26, ubuntu-24.04]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:

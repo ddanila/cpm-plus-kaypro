@@ -1,0 +1,7 @@
+{
+  "pass": true,
+  "lost_data_status": 4,
+  "missing_sector_status": 16,
+  "hardware_executed": false,
+  "scope": "independent lost-data deadline and missing-sector status; synthetic media"
+}

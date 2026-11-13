@@ -27,6 +27,8 @@ def recover(port,config):
     query(port.fd,'B',timeout=2)
     platform=Path(options['platform']);image=Path(options['image'])
     payload=validate(image,platform)
+    from disk_config import patch_floppy
+    payload=patch_floppy(payload,json.loads(platform.with_name('manifest.json').read_text()),options.get('floppy_write'))
     if options['optimized']:
         payload=prepare(payload,json.loads(platform.with_name('manifest.json').read_text()),options['runtime_parity'],options['buffer_console'])
     try:bootstrap(port.fd,payload,session,30)

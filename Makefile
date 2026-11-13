@@ -19,7 +19,7 @@ build/cpm3.sys: src/cpm3-bios.asm tools/regenerate_cpm3.py third_party/cpm3/bdos
 	$(PYTHON) tools/regenerate_cpm3.py --adapter-address 0xc000 --top-page 0xbf --metadata-policy gencpm --output $@
 build/system.inc: build/cpm3.sys tools/system_contract.py
 	$(PYTHON) tools/system_contract.py
-build/platform.cim: src/platform.asm src/link.asm src/runtime-link.asm src/serial-platform.asm src/serial-common.asm src/serial-crc-table.asm src/console.asm src/keyboard.asm build/system.inc $(wildcard third_party/juku-common/platform/*.asm) third_party/juku-common/platform/rom-abi.inc $(ZMAC)
+build/platform.cim: src/platform.asm src/floppy.asm src/link.asm src/runtime-link.asm src/serial-platform.asm src/serial-common.asm src/serial-crc-table.asm src/console.asm src/keyboard.asm build/system.inc $(wildcard third_party/juku-common/platform/*.asm) third_party/juku-common/platform/rom-abi.inc $(ZMAC)
 	$(ZMAC) --zmac -o $@ -o build/platform.lst $<
 build/boot-stage.cim: src/boot-stage.asm src/rom-version.asm src/console.asm src/monitor.asm src/link.asm $(ZMAC)
 	$(ZMAC) --zmac -o $@ -o build/boot-stage.lst $<
@@ -88,13 +88,13 @@ $(ZXCC): $(ZXCC_ARCHIVE) | $(BUILD) $(BIN)
 
 
 probe: build/kaypro-probe
-build/kaypro-probe: tools/probe.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/machines/kaypro2/kaypro2.h $(DAC)/common/cpu/z80.c $(DAC)/common/cpu/z80.h $(DAC)/common/trace/trace.c $(DAC)/common/trace/trace.h $(DAC)/third_party/cpu/chips/z80.h | build
-	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -I$(DAC) tools/probe.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/common/cpu/z80.c $(DAC)/common/trace/trace.c -o $@
+build/kaypro-probe: tools/probe.c $(wildcard $(DAC)/common/fdc/*) $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/machines/kaypro2/kaypro2.h $(DAC)/common/cpu/z80.c $(DAC)/common/cpu/z80.h $(DAC)/common/trace/trace.c $(DAC)/common/trace/trace.h $(DAC)/third_party/cpu/chips/z80.h | build
+	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -I$(DAC) tools/probe.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/machines/juku/juku_fdc.c $(DAC)/machines/juku/juk_disk.c $(DAC)/common/media/media.c $(DAC)/common/cpu/z80.c $(DAC)/common/trace/trace.c -o $@
 
 SHLIB_EXT := $(if $(filter Darwin,$(shell uname)),dylib,so)
 board-test: build/board-test.$(SHLIB_EXT)
-build/board-test.$(SHLIB_EXT): tools/board_test.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/machines/kaypro2/kaypro2.h $(DAC)/common/cpu/z80.c $(DAC)/common/cpu/z80.h $(DAC)/common/trace/trace.c $(DAC)/common/trace/trace.h $(DAC)/third_party/cpu/chips/z80.h | build
-	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -I$(DAC) tools/board_test.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/common/cpu/z80.c $(DAC)/common/trace/trace.c -o $@
+build/board-test.$(SHLIB_EXT): tools/board_test.c $(wildcard $(DAC)/common/fdc/*) $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/machines/kaypro2/kaypro2.h $(DAC)/common/cpu/z80.c $(DAC)/common/cpu/z80.h $(DAC)/common/trace/trace.c $(DAC)/common/trace/trace.h $(DAC)/third_party/cpu/chips/z80.h | build
+	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -shared -fPIC -I$(DAC) tools/board_test.c $(DAC)/machines/kaypro2/kaypro2.c $(DAC)/machines/juku/juku_fdc.c $(DAC)/machines/juku/juk_disk.c $(DAC)/common/media/media.c $(DAC)/common/cpu/z80.c $(DAC)/common/trace/trace.c -o $@
 
 build/keys-test.cim: src/keys-test.asm $(ZMAC)
 	$(ZMAC) --zmac -o $@ $<

@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import Mock,patch
 import recovery_profile as profile
 with tempfile.TemporaryDirectory() as directory:
+    (Path(directory)/'manifest.json').write_text('{}')
     port=Mock();port.fd=7
     config=dict(settings=dict(baud=19200,parity='O',stop_bits=1),
         boot_settings=dict(baud=19200,parity='O',stop_bits=1),session=directory,

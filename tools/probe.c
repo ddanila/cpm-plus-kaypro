@@ -31,6 +31,12 @@ int main(int argc,char **argv){
   for(unsigned c=128;c<256;c++)for(unsigned y=0;y<8;y++)font[c*8+y]=(c+y*3)&31;
  }
  if(kaypro2_load_chargen(m,font,sizeof font))return 2;
+ uint8_t *floppy[2]={NULL,NULL}; const char *floppy_paths[2]={getenv("KAYPRO_FLOPPY_C"),getenv("KAYPRO_FLOPPY_D")};
+ for(unsigned i=0;i<2;i++)if(floppy_paths[i]){
+  floppy[i]=malloc(204800);FILE *df=fopen(floppy_paths[i],"rb");
+  if(!floppy[i]||!df||fread(floppy[i],1,204800,df)!=204800||fgetc(df)!=EOF)return 2;
+  fclose(df);if(kaypro2_mount(m,i,dac_memory_storage(floppy[i],204800,1),getenv("KAYPRO_FLOPPY_RO")==NULL))return 2;
+ }
  m->serial_user=&fd;m->transmit=tx;
  fcntl(fd,F_SETFL,fcntl(fd,F_GETFL)|O_NONBLOCK);
  signal(SIGTERM,stopped);signal(SIGINT,stopped);
@@ -87,5 +93,9 @@ int main(int argc,char **argv){
   fwrite(pixels,1,560*240,f);free(pixels);fclose(f);}}
  fprintf(stderr,"keyboard received=%u dropped=%u max_service_gap=%llu\n",key_received,key_dropped,(unsigned long long)max_gap);
  fprintf(stderr,"reset-transition-drops=%u runtime-drops=%u\n",reset_drops,dropped-reset_drops);
+ for(unsigned i=0;i<2;i++)if(floppy[i]){
+  if(!getenv("KAYPRO_FLOPPY_RO")){f=fopen(floppy_paths[i],"wb");if(!f||fwrite(floppy[i],1,204800,f)!=204800)return 2;fclose(f);}
+  free(floppy[i]);
+ }
  free(m);return dropped-reset_drops||key_dropped?1:0;
 }

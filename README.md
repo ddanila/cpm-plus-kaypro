@@ -2,7 +2,8 @@
 
 Replacement 4 KiB **KP2 serial boot ROM**, nonbanked Digital Research CP/M Plus
 3.1, local CRT/keyboard and mirrored host console for PC003, Kaypro 2 S/N 139936.
-The external serial link supplies the virtual disk, defaulting to **19200 8O1**.
+The external serial link supplies A: and B:, defaulting to **19200 8O1**.
+C: and D: address the two physical floppy drives, read-only by default.
 V3 offers local serial settings, diagnostics and explicit discovery; the selected
 configuration is carried into CP/M.
 Serial boot and CP/M file operations have also passed on physical PC003.
@@ -14,7 +15,7 @@ warm boots and host reattachment passed. A subsequent 5m34s soak verified ten
 8 KiB copies and ten more warm boots, with zero host retries or UART errors.
 The first attempt exposed a
 stale host executable, now rejected by launcher preflight. See the
-[physical test report](reports/hardware-pc003-v3-20261112.json). Physical floppy support is deferred.
+[physical test report](reports/hardware-pc003-v3-20261112.json). Physical floppy support is implemented as an emulator-qualified candidate; physical-drive qualification is pending. See [drive mapping and qualification](docs/disk-drives.md).
 
 The guest filesystem loader, BIOS and session approach reuse cpm-plus-1715.
 Juku's N4 console and NetDisk v3 guest code is included directly from the pinned
@@ -55,7 +56,7 @@ HELLO.TXT, deterministic binary data and KEYS/SCREEN diagnostic transients.
 The [3.1.0 candidate binary](firmware/3.1.0/boot.rom),
 [checksums and evidence](firmware/3.1.0/manifest.json), and
 [change notes](docs/rom-3.1.md) are included for burning from another machine.
-Physical qualification is pending.
+ROM 3.1.0 passed baseline and optimized serial qualification on PC003; see [the hardware report](reports/hardware-pc003-v31-20261113.json). This does not qualify the new floppy driver.
 
 ROM **3.1.0** displays its version, serial settings, expected upload and host
 launcher instructions on the CRT. Its version is stored as readable ASCII in

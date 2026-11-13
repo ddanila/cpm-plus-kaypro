@@ -13,13 +13,16 @@ unsigned board_receive(kaypro2 *m,unsigned n,unsigned v){return kaypro2_receive(
 unsigned board_baud(kaypro2 *m,unsigned n){return kaypro2_baud(m,n);}
 unsigned board_error(kaypro2 *m,unsigned n){return m->sio[n].errors;}
 unsigned long long board_cycles(kaypro2 *m){return m->cpu.cycles;}
-int board_call_stack(kaypro2 *m,unsigned addr,unsigned bc,unsigned sp){
+static unsigned key_stream, key_sent;
+void board_key_stream(kaypro2 *m,unsigned n){(void)m;key_stream=n;key_sent=0;}
+static int call_limited(kaypro2 *m,unsigned addr,unsigned bc,unsigned sp,unsigned limit){
  uint8_t code[]={0x31,sp&255,sp>>8,0x01,bc&255,bc>>8,0xcd,addr&255,addr>>8,0x76};
  memcpy(m->ram+0x4000,code,sizeof code);
  m->cpu.pins=z80_prefetch(&m->cpu.cpu,0x4000);m->io_active=0;
- for(unsigned i=0;i<2000000;i++){
+ for(unsigned i=0;i<limit;i++){
+  if(key_sent<key_stream && i%83334==0){kaypro2_receive(m,1,65+(key_sent%26));key_sent++;}
   kaypro2_run(m,1);
-  if(m->cpu.pins&Z80_HALT)return m->cpu.cpu.a;
+  if(m->cpu.pins&Z80_HALT){key_stream=0;return m->cpu.cpu.a;}
  }
  return -1;
 }
@@ -30,7 +33,15 @@ void board_tick(kaypro2 *m,unsigned n){kaypro2_run(m,n);}
 unsigned board_tx(kaypro2 *m,void *p){(void)m;memcpy(p,txdata,ntx);unsigned n=ntx;ntx=0;return n;}
 unsigned board_pc(kaypro2 *m){return m->cpu.cpu.pc;}
 
-int board_call(kaypro2 *m,unsigned addr,unsigned bc){return board_call_stack(m,addr,bc,0xf700);}
+int board_call(kaypro2 *m,unsigned addr,unsigned bc){return call_limited(m,addr,bc,0xf700,2000000);}
 unsigned board_receive_status(kaypro2 *m,unsigned n,unsigned v,unsigned errors){return kaypro2_receive_status(m,n,v,errors);}
 void board_modem(kaypro2 *m,unsigned n,unsigned bits){kaypro2_modem(m,n,bits);}
 unsigned board_wr(kaypro2 *m,unsigned n,unsigned r){return m->sio[n&1].wr[r&7];}
+
+int board_mount(kaypro2 *m,unsigned drive,void *bytes,unsigned size,unsigned writable){return kaypro2_mount(m,drive,dac_memory_storage(bytes,size,writable),writable);}
+void board_eject(kaypro2 *m,unsigned drive){kaypro2_eject(m,drive);}
+void board_fault(kaypro2 *m,unsigned drive,unsigned status){m->floppy_fault[drive&1]=status;}
+unsigned board_fdc(kaypro2 *m,unsigned reg){return reg==4?m->fdc.lost_position:wd179x_read(&m->fdc,reg);}
+
+int board_call_stack(kaypro2 *m,unsigned addr,unsigned bc,unsigned sp){return call_limited(m,addr,bc,sp,2000000);}
+int board_call_floppy(kaypro2 *m,unsigned addr,unsigned bc){return call_limited(m,addr,bc,0xf700,12000000);}

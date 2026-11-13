@@ -14,11 +14,11 @@ def main():
  dac=a.dac.resolve();host=a.host_repo.resolve();result=dict(complete=False,hardware_executed=False,platform=platform.platform(),architecture=platform.machine(),python=sys.version,source_sha256=source_hashes())
  try:
   run('make','all','probe','board-test',f'DAC={dac}',f'PYTHON={sys.executable}')
-  run('make','test-kaypro2',cwd=dac)
+  run('make','test-kaypro2','test-kaypro2-fdc',cwd=dac)
   run('bash','sync/jukuhost_linux_build.sh',cwd=host)
   run('bash','sync/jukuhost_runner_check.sh',cwd=host)
   run('bash','sync/jukuhost_core_check.sh',cwd=host)
-  for name in ['boot','drivers','launcher','monitor','optimization','adapter','recovery_profile']:
+  for name in ['boot','drivers','launcher','monitor','optimization','adapter','recovery_profile','floppy']:
    run(sys.executable,f'tools/check_{name}.py')
   for file in ['boot-result.json','driver-result.json','launcher-result.json','monitor-result.json','optimization-result.json','adapter-result.json','manifest.json','driver-map.json']:
    shutil.copyfile(ROOT/'build'/file,out/file)
@@ -27,6 +27,7 @@ def main():
   run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'alternate','--alternate')
   run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'optimized','--optimized','--read-ahead','8','--corrupt-read')
   run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'auto','--auto','--optimized')
+  run(sys.executable,'tools/check_runtime.py','--host',host/'build/jukuhost','--out',out/'four-drives','--auto','--optimized','--disks')
   if a.mame:run(sys.executable,'tools/check_mame.py','--mame',a.mame,'--out',out/'mame')
   result['manifest']=json.loads((out/'manifest.json').read_text())
   result['dependencies']=json.loads((ROOT/'docs/dependencies.json').read_text())

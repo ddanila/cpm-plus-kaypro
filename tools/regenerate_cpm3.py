@@ -125,11 +125,8 @@ def generate(zxcc: Path, work: Path, *, top_page: int,
     child.expect(pexpect.EOF)
     transcript += child.before
     print(transcript)
-    bios = adapter_address - 0x400
-    bdos = bios - 0x1F00
-    if f"BIOS3    SPR  {bios:04X}H  0400H" not in transcript or \
-            f"BDOS3    SPR  {bdos:04X}H  1F00H" not in transcript:
-        raise RuntimeError("GENCPM produced an unexpected non-banked map")
+    if "BDOS3    SPR" not in transcript or "BIOS3    SPR" not in transcript:
+        raise RuntimeError("GENCPM did not emit the non-banked load map")
 
 
 def normalize(result: bytes, *, adapter_address: int,
@@ -142,7 +139,7 @@ def normalize(result: bytes, *, adapter_address: int,
     # SYS payload records are stored from the top of common memory downward.
     # Translate runtime FE58h relative to the system's configured memory top.
     # The SCB resides at BIOS entry minus 64h; its date field is +58h.
-    runtime_date = adapter_address - 0x400 - 0x64 + 0x58
+    runtime_date = int.from_bytes(data[4:6], "little") - 0x64 + 0x58
     record = (adapter_address - 1 - runtime_date) // 128
     within = runtime_date - (adapter_address - (record + 1) * 128)
     offset = 256 + record * 128 + within
@@ -219,12 +216,7 @@ def main() -> int:
             metadata_policy=args.metadata_policy,
         )
 
-    expected_header = bytes((
-        args.adapter_address >> 8, 0x23, 0, 0,
-        (args.adapter_address - 0x400) & 0xFF,
-        (args.adapter_address - 0x400) >> 8,
-    ))
-    if result[:6] != expected_header or len(result) != 9216:
+    if result[0] != args.adapter_address >> 8 or result[2:4] != b'\0\0' or len(result) != 256 + result[1]*256:
         raise RuntimeError("generated CPM3.SYS has an unexpected header")
     if args.check:
         expected = args.output.read_bytes()

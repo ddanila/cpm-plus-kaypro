@@ -1,0 +1,65 @@
+{
+  "complete": true,
+  "hardware_executed": false,
+  "physical_floppy_qualified": false,
+  "dependencies": {
+    "dac-emulation": "c1981eb126fde3b713a6c8c3ee981b28dd4f9571",
+    "8080-cosim": "67b1156bf07d7e27eb1a3e3321770f88a5399f38",
+    "juku-common": "59e89d20ef62b4c892d5d4eae1a44caab600575f"
+  },
+  "manifest": {
+    "drive_support": 4,
+    "floppy_format": "kaypro-ii-ssdd",
+    "tpa_ceiling": 39424,
+    "runtime_link": 1,
+    "runtime_offsets": {
+      "runtime_config": 6795,
+      "console_buffering": 1337,
+      "floppy_write_mask": 1952
+    },
+    "serial_handoff": 1,
+    "diagnostic_protocol": "D3",
+    "rom_version": "3.1.0",
+    "protocol": "KP2",
+    "framing": "19200 8O1",
+    "hardware_executed": false,
+    "sha256": {
+      "boot.rom": "c60b077edc3c4c5aa6c6cdaf12fcc8fdfdb0ba889b464f807f93e6626451573a",
+      "platform.cim": "37e8171e11b8334d38da66234bd72c6a7a39fb5c3a1269228aa13d6cfd199d7e",
+      "kaypro.img": "173a5955e514c52b81e7da421dca74aac15db2bedbf47cfb665ed32448c93c72"
+    },
+    "sizes": {
+      "boot.rom": 4096,
+      "platform.cim": 6797,
+      "kaypro.img": 819200
+    },
+    "rom_used": 3781,
+    "rom_free": 315,
+    "memory": {
+      "platform_start": 49152,
+      "platform_end": 55949,
+      "platform_limit": 62976,
+      "stack_top": 63232,
+      "system_start": 39424,
+      "system_top": 49152,
+      "bootstrap_start": 32768
+    }
+  },
+  "host_summaries": [
+    "00294143 INFO  stop exit=0 rx=104054 tx=250687 requests=4352 reads=521 records=2084 writes=522 retries=0 boot-restarts=0 target-resets=0 reconnects=0 uart-errors=0 available-memory=0",
+    "00070191 INFO  stop exit=0 rx=15945 tx=49621 requests=831 reads=120 records=480 writes=68 retries=0 boot-restarts=1 target-resets=1 reconnects=0 uart-errors=0 available-memory=0"
+  ],
+  "additional_checks": [
+    "Juku original controller regression suite",
+    "Kaypro timed FDC, lost-data and HALT/NMI regression",
+    "Juku/Robotron board integration tests",
+    "shared host runner/core/full PTY regression suite",
+    "A/B journaling, duplicate writes, read-only geometry, locking and malformed-journal regression",
+    "ROM boot, monitor, launcher, resident driver, runtime negotiation and CRC checks"
+  ],
+  "pending": [
+    "macOS/Linux CI on pinned revisions",
+    "PC003 physical floppy read qualification",
+    "explicitly approved disposable-disk write qualification"
+  ]
+}

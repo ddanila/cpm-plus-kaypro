@@ -1,5 +1,6 @@
 ; MIT. Kaypro glue for the shared N4 / NetDisk engines.
-home:   call console_flush
+home:   call floppy_home
+        call console_flush
         call N3INV
         ld hl,0
         ld (track),hl
@@ -9,8 +10,9 @@ serial_position:
         call console_flush
         call keyservice
         ld a,(drive)
-        or a
-        jp nz,error
+        cp 2
+        jp nc,error
+        ld (SEKDSK),a
         ld hl,(track)
         ld a,h
         or a
@@ -32,14 +34,21 @@ serial_position:
         ld hl,(dma)
         ld (MEMADR),hl
         xor a
-        ld (SEKDSK),a
         ret
-read:   call serial_position
+read:   ld a,(drive)
+        cp 2
+        jp nc,floppy_read
+        call serial_cache_drive
+        call serial_position
         or a
         ret nz
         call cache_validate
         jp N3READ
-write:  call serial_position
+write:  ld a,(drive)
+        cp 2
+        jp nc,floppy_write
+        call serial_cache_drive
+        call serial_position
         or a
         ret nz
         jp N3WRITE
@@ -235,3 +244,12 @@ serial_rx_ready:
         pop bc
         or a
         ret
+
+; A single buffer is deliberately invalidated at every drive switch.
+serial_cache_drive:
+        ld hl,serial_cached_drive
+        cp (hl)
+        ret z
+        ld (hl),a
+        jp N3INV
+serial_cached_drive: db 0ffh

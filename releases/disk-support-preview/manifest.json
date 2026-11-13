@@ -1,0 +1,38 @@
+{
+  "drive_support": 4,
+  "floppy_format": "kaypro-ii-ssdd",
+  "tpa_ceiling": 39424,
+  "runtime_link": 1,
+  "runtime_offsets": {
+    "runtime_config": 6795,
+    "console_buffering": 1337,
+    "floppy_write_mask": 1952
+  },
+  "serial_handoff": 1,
+  "diagnostic_protocol": "D3",
+  "rom_version": "3.1.0",
+  "protocol": "KP2",
+  "framing": "19200 8O1",
+  "hardware_executed": false,
+  "sha256": {
+    "boot.rom": "c60b077edc3c4c5aa6c6cdaf12fcc8fdfdb0ba889b464f807f93e6626451573a",
+    "platform.cim": "37e8171e11b8334d38da66234bd72c6a7a39fb5c3a1269228aa13d6cfd199d7e",
+    "kaypro.img": "173a5955e514c52b81e7da421dca74aac15db2bedbf47cfb665ed32448c93c72"
+  },
+  "sizes": {
+    "boot.rom": 4096,
+    "platform.cim": 6797,
+    "kaypro.img": 819200
+  },
+  "rom_used": 3781,
+  "rom_free": 315,
+  "memory": {
+    "platform_start": 49152,
+    "platform_end": 55949,
+    "platform_limit": 62976,
+    "stack_top": 63232,
+    "system_start": 39424,
+    "system_top": 49152,
+    "bootstrap_start": 32768
+  }
+}

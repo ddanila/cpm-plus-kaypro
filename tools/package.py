@@ -14,13 +14,13 @@ def main():
  assert reports[0]['platform'].startswith('macOS') and reports[1]['platform'].startswith('Linux')
  files=[ROOT/f for f in ['README.md','LICENSE','NOTICE.md','build/boot.rom','build/platform.cim','build/manifest.json','out/kaypro.img','third_party/cpm3/LICENSE.md','third_party/JUKU-LICENSE','third_party/juku-common/LICENSE']]
  files+=list((ROOT/'docs').glob('*.md'))+[ROOT/'docs/dependencies.json']
- files+=[ROOT/'tools'/f for f in ['serial_boot.py','shared_host.py','recovery_profile.py','terminal.py','diagnostics.py','serial_format.py','runtime_link.py','pl2303.py','reload_runtime.py','benchmark.py','media.py','dependencies.py']]
+ files+=[ROOT/'tools'/f for f in ['serial_boot.py','shared_host.py','recovery_profile.py','terminal.py','diagnostics.py','serial_format.py','runtime_link.py','pl2303.py','reload_runtime.py','benchmark.py','media.py','disk_config.py','dependencies.py']]
  entries={str(f.relative_to(ROOT)):f.read_bytes() for f in files}
  from shared_host import load
  shared=load()
  entries.update({'python/jh_recovery/'+f.name:f.read_bytes() for f in (shared/'jh_recovery').glob('*.py')})
  for label,d in [('macos',a.macos),('linux',a.linux)]:
-  for name in ['qualification.json','boot-result.json','driver-result.json','launcher-result.json','monitor-result.json','optimization-result.json','adapter-result.json','alternate/result.json','writable/result.json','read-only/result.json','optimized/result.json','auto/result.json']:
+  for name in ['qualification.json','boot-result.json','driver-result.json','launcher-result.json','monitor-result.json','optimization-result.json','adapter-result.json','alternate/result.json','writable/result.json','read-only/result.json','optimized/result.json','auto/result.json','four-drives/result.json']:
    entries[f'qualification/{label}/{name}']=(d/name).read_bytes()
  if (a.macos/'mame/result.json').exists():entries['qualification/mame.json']=(a.macos/'mame/result.json').read_bytes()
  hashes=''.join(hashlib.sha256(data).hexdigest()+'  '+name+'\n' for name,data in sorted(entries.items()))

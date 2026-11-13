@@ -31,7 +31,8 @@ init:   di
 unavailable:
         xor a
         ret
-const:  call console_flush
+const:  call floppy_idle
+        call console_flush
         call keyservice
         ld a,(keyhold)
         or a
@@ -78,8 +79,14 @@ conout: push af
 seldsk: ld a,c
         ld (drive),a
         ld hl,0
-        or a
-        ret nz
+        cp 4
+        ret nc
+        cp 1
+        jr nz,select_present
+        ld a,(host_features)
+        and 10h
+        ret z
+select_present:
         inc hl
         ret
 settrk: ld (track),bc
@@ -123,6 +130,7 @@ crcnox: dec e
         jr nz,crc
         ret
         include "src/serial-platform.asm"
+        include "src/floppy.asm"
 ; Bootstrap scans the user-0 directory for the single-extent CPM3.SYS.
 ; GENCPM's reverse 128-byte record order is retained on disk.
 loader: di
@@ -190,10 +198,10 @@ nomatch: pop hl
 loadsys: ld a,(sysentry+14)
         or a
         jp nz,booterror
-        ; Exactly five blocks contain the 72-record generated system.
+        ; The generated system contract supplies record and block counts.
         ; Validate all before reading any payload into resident memory.
         ld ix,sysentry+16
-        ld b,5
+        ld b,system_blocks
 sysblocks: ld l,(ix+0)
         ld h,(ix+1)
         ld de,2
@@ -205,7 +213,7 @@ sysblocks: ld l,(ix+0)
         sbc hl,de
         jp nc,booterror
         ld hl,sysentry+16
-        ld a,5
+        ld a,system_blocks
         sub b
         ld c,a
         jr z,sysblocknext
@@ -222,14 +230,14 @@ sysdifferent: inc hl
 sysblocknext: inc ix
         inc ix
         djnz sysblocks
-        ld b,6
+        ld b,16-system_blocks*2
 sysunused: ld a,(ix+0)
         or a
         jp nz,booterror
         inc ix
         djnz sysunused
         ld a,(sysentry+15)
-        cp 72
+        cp system_records
         jp nz,booterror
         xor a
         ld (filerec),a
@@ -264,17 +272,17 @@ sysloop: call sysread
         ld a,(filerec)
         inc a
         ld (filerec),a
-        cp 72
+        cp system_records
         jr nz,sysloop
-        ld hl,09d00h
-        ld de,2300h
+        ld hl,system_start
+        ld de,system_length
         ld bc,0ffffh
         call crc
         ld hl,system_crc
         or a
         sbc hl,bc
         jp nz,booterror
-        jp 0bc00h
+        jp system_entry
 sysread: ld a,(filerec)
         srl a
         srl a
@@ -332,7 +340,8 @@ boothalt: di
         halt
         jr boothalt
 sysname: db 'CPM3    SYS'
-sysheader: db 0c0h,23h,0,0,0,0bch
+sysheader: db 0c0h,system_length/256,0,0
+        dw system_entry
 bootmsg: db 'CP/M 3 boot error: CPM3.SYS',13,10,0
 idonly: db 0
 valid: db 0

@@ -21,12 +21,12 @@ def main():
     assert symbols(ROOT/'build/boot.lst')['stage_end']<=4096
     assert sy['loader']>=0xc03c and platform[0x33]==0xc3
     files={'boot.rom':ROOT/'build/boot.rom','platform.cim':ROOT/'build/platform.cim','kaypro.img':ROOT/'out/kaypro.img'}
-    manifest=dict(runtime_link=1,runtime_offsets={k:sy[k]-0xc000 for k in ('runtime_config','console_buffering')},serial_handoff=1,diagnostic_protocol='D3',rom_version=version[0].decode('ascii'),protocol='KP2',framing='19200 8O1',hardware_executed=False,
+    manifest=dict(drive_support=4,floppy_format='kaypro-ii-ssdd',tpa_ceiling=sy['system_start'],runtime_link=1,runtime_offsets={k:sy[k]-0xc000 for k in ('runtime_config','console_buffering','floppy_write_mask')},serial_handoff=1,diagnostic_protocol='D3',rom_version=version[0].decode('ascii'),protocol='KP2',framing='19200 8O1',hardware_executed=False,
       sha256={k:hashlib.sha256(p.read_bytes()).hexdigest() for k,p in files.items()},
       sizes={k:p.stat().st_size for k,p in files.items()},
       rom_used=symbols(ROOT/'build/boot.lst')['stage_end'],
       rom_free=4096-symbols(ROOT/'build/boot.lst')['stage_end'],
       memory=dict(platform_start=0xc000,platform_end=sy['platform_end'],platform_limit=0xf600,
-                  stack_top=0xf700,system_start=0x9d00,system_top=0xc000,bootstrap_start=0x8000))
+                  stack_top=0xf700,system_start=sy['system_start'],system_top=0xc000,bootstrap_start=0x8000))
     (ROOT/'build/manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
 if __name__=='__main__':main()

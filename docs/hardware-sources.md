@@ -18,8 +18,7 @@ copied beneath itself as on the ordinary Robotron.
 
 The timing and SIO register model is adapted from the existing Robotron
 `peripherals.h` implementation; the Z80 and tracing code are shared directly.
-SIO interrupts, automatic modem transitions, bit-level framing, floppy
-controller, keyboard MCU firmware, CRT sync waveforms and PIO handshakes are
+SIO interrupts, automatic modem transitions, bit-level framing, keyboard MCU firmware, CRT sync waveforms and PIO handshakes are
 not implemented. The deterministic renderer produces 560×240 monochrome pixels
 from a caller-supplied 2048-byte character ROM and explicit blink phase.
 This is a schematic-derived display model, not physical qualification. Unmapped ROM-space
@@ -104,3 +103,7 @@ All tested x1 receive candidates failed, although short transmit patterns
 passed up to requested 316800. See [physical speed measurements](serial-speed.md).
 The byte-level emulator does not model x1 receive synchronization and cannot
 qualify such a physical link.
+
+The current floppy candidate uses a shared WD179x sector model with timed DRQ,
+per-drive media and HALT/NMI wiring. See [disk support](disk-drives.md) for its
+format, limitations, software tests and pending physical qualification.

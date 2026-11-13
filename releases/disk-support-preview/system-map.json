@@ -1,0 +1,14 @@
+{
+  "system_crc": 29941,
+  "system_start": 39424,
+  "system_entry": 47360,
+  "system_length": 9728,
+  "system_records": 78,
+  "system_blocks": 5,
+  "system_top": 49152,
+  "platform_start": 49152,
+  "platform_limit": 62976,
+  "stack_top": 63232,
+  "bootstrap_start": 32768,
+  "sys_sha256": "891b681cca8824f51223d9f7412b9e3ef154e8c163e2488309cea80fa1eaca4c"
+}

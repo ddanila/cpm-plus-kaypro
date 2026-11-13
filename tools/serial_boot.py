@@ -205,6 +205,9 @@ def main():
     p.add_argument('--image',type=Path,default=ROOT/'out/kaypro.img')
     p.add_argument('--timeout',type=float,default=30)
     p.add_argument('--read-only',action='store_true')
+    p.add_argument('--drive-b',type=Path,help='native800 source image; copied into the session')
+    p.add_argument('--drive-b-read-only',action='store_true')
+    p.add_argument('--floppy-write',choices=['C','D','CD'],help='enable physical writes on named drives (default: neither)')
     p.add_argument('--test-corrupt-read-reply-once',action='store_true',help=argparse.SUPPRESS)
     p.add_argument('--console-pty',help='raw Kaypro console endpoint for automation')
     a=p.parse_args()
@@ -223,6 +226,12 @@ def main():
     runtime_baud=a.runtime_baud or runtime_baud;runtime_parity=a.runtime_parity or runtime_parity
     validate_host(a.host,runtime_baud,runtime_parity,a.stop_bits,optimized)
     payload=validate(a.image,a.platform)
+    manifest=json.loads((a.platform.parent/'manifest.json').read_text())
+    if a.floppy_write and manifest.get('drive_support',1)<4:raise ValueError('platform lacks floppy support')
+    if manifest.get('drive_support',1)>=4:
+        from disk_config import patch_floppy
+        payload=patch_floppy(payload,manifest,a.floppy_write)
+
     if optimized:
         if a.stop_bits!=1:p.error('runtime profiles require one stop bit')
         payload=prepare(payload,json.loads((a.platform.parent/'manifest.json').read_text()),runtime_parity,a.buffer_console)
@@ -231,14 +240,28 @@ def main():
                   source_sha256=digest(a.image),host_sha256=digest(a.host),read_only=a.read_only)
     if optimized:identity.update(runtime_profile=a.runtime_profile,runtime_baud=runtime_baud,runtime_parity=runtime_parity,
         adapter=a.adapter,read_ahead=a.read_ahead,buffer_console=a.buffer_console,upload_sha256=hashlib.sha256(payload).hexdigest())
+    stored_identity=json.loads((session/'identity.json').read_text()) if session.exists() else None
+    multi=manifest.get('drive_support',1)>=4 and (stored_identity is None or 'drive_b' in stored_identity)
+    if a.drive_b and not multi:raise ValueError('B: requires a new multi-disk session and compatible platform')
+    b_source=a.drive_b.read_bytes() if a.drive_b else bytes([0xe5])*819200
+    if multi:
+        from media import inspect
+        inspect(b_source)
+        identity['drive_b']=dict(source_sha256=hashlib.sha256(b_source).hexdigest(),read_only=a.drive_b_read_only)
+        identity['floppy_write']=a.floppy_write or ''
+        # Verify new host capability before opening a serial descriptor.
+        check=subprocess.run([str(a.host.resolve()),'--drive-b-writable','--help'],capture_output=True,timeout=5)
+        if check.returncode:raise ValueError('host lacks writable B: support; rebuild it before upload')
     if a.mode=='boot' or (a.mode=='auto' and not session.exists()):
         session.mkdir(parents=True,exist_ok=False)
         shutil.copyfile(a.image,session/'disk.img')
+        if multi:(session/'disk-b.img').write_bytes(b_source)
         (session/'identity.json').write_text(json.dumps(identity,indent=2)+'\n')
     else:
         stored=json.loads((session/'identity.json').read_text())
         if stored!=identity:raise ValueError('session identity differs; use original artifacts and options')
         if (session/'disk.img').stat().st_size!=819200:raise ValueError('invalid session disk')
+        if multi and (session/'disk-b.img').stat().st_size!=819200:raise ValueError('invalid B: session disk')
     lock=(session/'session.lock').open('a+b')
     try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     except BlockingIOError:lock.close();raise ValueError('session already in use')
@@ -290,6 +313,9 @@ def main():
         generation=next_generation(session) if optimized else None
         command=host_command(a.host,a.serial,port.fd,session/'disk.img',console,session,a.read_only,
             selected['baud'],selected['parity'],a.stop_bits,a.read_ahead,generation)
+        if multi:
+            command+=['--drive-b',str(session/'disk-b.img')]
+            if not a.drive_b_read_only:command.append('--drive-b-writable')
         if adapter:command.append('--serial-verified')
         if a.mode=='auto':
             from shared_host import load
@@ -299,7 +325,7 @@ def main():
                 [a.platform,a.image,a.platform.parent/'manifest.json'],serial=a.serial,adapter=a.adapter,
                 boot_settings=dict(baud=a.baud,parity=a.parity,stop_bits=a.stop_bits),
                 options=dict(platform=str(a.platform.resolve()),image=str(a.image.resolve()),optimized=optimized,
-                    runtime_baud=runtime_baud,runtime_parity=runtime_parity,buffer_console=a.buffer_console))
+                    runtime_baud=runtime_baud,runtime_parity=runtime_parity,buffer_console=a.buffer_console,floppy_write=a.floppy_write))
         if a.test_corrupt_read_reply_once:command.append('--test-corrupt-read-reply-once')
         result['host_exit']=run_host(command,port.fd,session,master)
         result['complete']=result['host_exit']==0

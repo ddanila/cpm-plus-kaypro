@@ -93,14 +93,35 @@
     {
       "test": "binary copy survives physical Reset",
       "bytes": 8192
+    },
+    {
+      "test": "optimized runtime negotiated",
+      "settings": {
+        "baud": 19200,
+        "parity": "N",
+        "stop_bits": 1,
+        "simulated": false
+      },
+      "read_ahead": 4,
+      "buffer_console": true
+    },
+    {
+      "test": "optimized binary copy independently verified",
+      "bytes": 8192
+    },
+    {
+      "test": "optimized warm boot"
+    },
+    {
+      "test": "optimized host reconnect without reset"
     }
   ],
   "initial_host_summary": [
     "00079374 INFO  stop exit=0 rx=27496 tx=68665 requests=2088 reads=558 records=558 writes=68 retries=0 boot-restarts=0 target-resets=0 reconnects=0 uart-errors=0 available-memory=0"
   ],
   "remaining": [
-    "Optimized runtime profiles not tested in this session",
-    "UART fault injection not tested on hardware"
+    "UART fault injection not tested on hardware",
+    "19800 baud custom adapter profile not retested with ROM 3.1"
   ],
   "evidence": "local/pc003-rom31-20261113",
   "physical_crt": {
@@ -138,5 +159,44 @@
       "00088667 INFO  phase=netdisk",
       "00088667 INFO  serving A: writable+journal, 19200 baud 8O1, N3"
     ]
+  },
+  "local_keyboard": {
+    "confirmed_by": "owner",
+    "command": "TYPE HELLO.TXT",
+    "passed": true
+  },
+  "optimized_runtime": {
+    "passed": true,
+    "runtime": {
+      "selected": "runtime",
+      "settings": {
+        "baud": 19200,
+        "parity": "N",
+        "stop_bits": 1,
+        "simulated": false
+      }
+    },
+    "identity": {
+      "protocol": "KP2",
+      "baud": 19200,
+      "framing": "8O1",
+      "platform_sha256": "ee9e8ad017ab74f0ad0917e302b27eda6981a87d3e85b65f11fe9201f7a6c653",
+      "source_sha256": "4941cb2e782df0e812b538fbfb488fb26a2880f455819cb8ea095ce56a331d60",
+      "host_sha256": "4089ed4bc7878a274e2d2b2894d73e0a40b26cec8b16eb982d6955111de06928",
+      "read_only": false,
+      "runtime_profile": "fast",
+      "runtime_baud": 19200,
+      "runtime_parity": "N",
+      "adapter": "posix",
+      "read_ahead": 4,
+      "buffer_console": true,
+      "upload_sha256": "d02ec77468814f05e68cb3e3778cfef2498ccb3a7616a837ed5af60a81790977"
+    },
+    "buffer_console": true,
+    "read_ahead": 4,
+    "initial_host_summary": [
+      "00177029 INFO  stop exit=0 rx=97922 tx=96987 requests=9941 reads=111 records=444 writes=68 retries=0 boot-restarts=1 target-resets=1 reconnects=0 uart-errors=0 available-memory=0"
+    ],
+    "host_left_running": true
   }
 }

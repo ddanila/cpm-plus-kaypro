@@ -1,0 +1,95 @@
+B:IMAGE C ERASE
+Track 00
+Track 01
+Track 02
+Track 03
+Track 04
+Track 05
+Track 06
+Track 07
+Track 08
+Track 09
+Track 0A
+Track 0B
+Track 0C
+Track 0D
+Track 0E
+Track 0F
+Track 10
+Track 11
+Track 12
+Track 13
+Track 14
+Track 15
+Track 16
+Track 17
+Track 18
+Track 19
+Track 1A
+Track 1B
+Track 1C
+Track 1D
+Track 1E
+Track 1F
+Track 20
+Track 21
+Track 22
+Track 23
+Track 24
+Track 25
+Track 26
+Track 27
+IMAGE complete; physical writes disabled.
+
+A>B:IMAGE C READ
+Track 00
+Track 01
+Track 02
+Track 03
+Track 04
+Track 05
+Track 06
+Track 07
+Track 08
+Track 09
+Track 0A
+Track 0B
+Track 0C
+Track 0D
+Track 0E
+Track 0F
+Track 10
+Track 11
+Track 12
+Track 13
+Track 14
+Track 15
+Track 16
+Track 17
+Track 18
+Track 19
+Track 1A
+Track 1B
+Track 1C
+Track 1D
+Track 1E
+Track 1F
+Track 20
+Track 21
+Track 22
+Track 23
+Track 24
+Track 25
+Track 26
+Track 27
+IMAGE complete; physical writes disabled.
+
+A>^C
+A>DIR C:
+C: MOVCPM   COM : PIP      COM : SUBMIT   COM : XSUB     COM : ED       COM 
+C: ASM      COM : DDT      COM : STAT     COM : SYSGEN   COM : COPY     COM 
+C: FORMAT   COM : BAUD     COM : TERM     COM : SBASIC   COM : OVERLAYB COM 
+C: CONFIG   COM : LOAD     COM : DUMP     COM : FAC      COM : BASICLIB REL 
+C: USERLIB  REL : FAC      BAS : XAMN     BAS : DPLAY    BAS : DUMP     ASM 
+C: SBIOS    ASM : DISKDEF  LIB : OKI      2   
+A>

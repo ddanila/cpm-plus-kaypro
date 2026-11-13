@@ -1,0 +1,27 @@
+{
+  "machine": "PC003 Kaypro 2, PC81-240A",
+  "installed_rom": "serial boot 3.1.0",
+  "target": "physical C: / first floppy drive",
+  "hardware_executed": true,
+  "complete": true,
+  "source_raw_sha256": "908f5288eeba4b22021d26711b6e6a73ec2e1e9c4ef1a87a04cd96fa0995f3b0",
+  "readback_raw_sha256": "908f5288eeba4b22021d26711b6e6a73ec2e1e9c4ef1a87a04cd96fa0995f3b0",
+  "bytes_compared": 204800,
+  "write_verify_seconds": 328.7320448339997,
+  "independent_readback_seconds": 243.45073320900156,
+  "tracks": 40,
+  "sectors": 400,
+  "sector_size": 512,
+  "write_and_immediate_compare": "pass",
+  "independent_full_readback_comparison": "exact match",
+  "physical_writes_after_test": "disabled",
+  "D_written": false,
+  "host_after_test": "running; CP/M Plus A> prompt",
+  "limitations": [
+    "Physical stock-ROM boot not performed; stock 81-232 boot of full readback passed independently in MAME",
+    "D remains unqualified",
+    "No new physical write-protect test"
+  ],
+  "platform_sha256": "9f2f0f2f415cfe5475a24e552eb8654f87298a18946c9b7b1de8c81ac93121e2",
+  "imager_sha256": "2919116c873abce8808ca91e36d8e8138cca0b74a9dd139a386f11308ca8eb8b"
+}

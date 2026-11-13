@@ -79,3 +79,6 @@ The imager shares the resident HALT/NMI transfer path. As with the formatter,
 there is no independent watchdog if hardware stops asserting both DRQ and
 INTRQ mid-transfer. Emulator checks cover ordinary missing media, write
 protection and CRC errors, plus full commands with a BDOS filesystem fixture.
+
+PC003 hardware creation and full read-back results are in the
+[2026-11-13 qualification report](../reports/stock-system-20261113/README.md).

@@ -1,0 +1,9 @@
+{
+  "pass": true,
+  "hardware_executed": false,
+  "image_sha256": "34624f872d6cb24bef077af47285918592cd3161db68a8191eddc90717c100f4",
+  "boot_rom_sha256": "0f72f1cecb5a66f7d623156a69c0ea4036e47eb4df8e8fa165c0e95bd45067a0",
+  "chargen_sha256": "cde431c9e506edf11261f7e7d52fd60b1a43fe2d9ea0d3e06f271d4cab4884fa",
+  "scope": "Stock 81-232 ROM boots disk to CP/M 2.2 A> prompt; synthetic unused keyboard MCU ROM; keyboard not tested",
+  "mame_version": "MAME v0.289 (unknown)"
+}

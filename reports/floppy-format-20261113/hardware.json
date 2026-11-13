@@ -29,6 +29,11 @@
       "drive": "D",
       "test": "same diskette moved by owner, format attempt",
       "result": "STOPPED before Write Track: index edge not detected (utility FD, FDC 00)"
+    },
+    {
+      "drive": "D",
+      "source": "owner observation after formatting attempt",
+      "result": "Activity LED never lit, but motor was spinning. Drive selection remains unconfirmed; motor activity alone is insufficient."
     }
   ],
   "physical_writes_enabled": false,

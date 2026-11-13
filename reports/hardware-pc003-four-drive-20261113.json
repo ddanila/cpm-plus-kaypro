@@ -17,9 +17,13 @@
     {
       "source": "owner observation",
       "result": "Attempted diskette read unsuccessful; owner describes diskette as quite bad; no known-good medium available"
+    },
+    {
+      "source": "later owner observation during D format attempt",
+      "result": "D LED never lit although motor spun; earlier D selection confirmation is withdrawn pending verification."
     }
   ],
-  "physical_drive_selection_confirmed": true,
+  "physical_drive_selection_confirmed": false,
   "physical_floppy_read_qualified": false,
   "physical_floppy_write_qualified": false,
   "limitations": "The unsuccessful read does not distinguish media, drive, or driver faults. No physical writes enabled or tested."

@@ -70,9 +70,9 @@ board's HALT/NMI handshake after real PC003 polling transfers reported lost data
 
 On 2026-11-13, PC003 booted this four-drive build over serial. The owner
 confirmed that C: and D: each accessed the correct physical drive. An attempted
-read from a suspect diskette failed; no known-good medium was available. This
-confirms physical drive selection only, not successful sector or filesystem
-reads. Physical writes remained disabled. See the
+read from a suspect diskette failed; no known-good medium was available. This was initially recorded as selection confirmation, but the later D:
+observation below leaves D: selection unconfirmed. It does not establish
+successful sector or filesystem reads. Physical writes remained disabled. See the
 [hardware observation report](../reports/hardware-pc003-four-drive-20261113.json).
 
 No archival disk is used for write qualification. No new ROM burn is needed.
@@ -87,3 +87,8 @@ verified all ten sectors of track 0 on C:, but track 1 sector 0 retained CRC
 errors after retries. With the same diskette in D:, the formatter stopped
 because it could not detect index. Neither drive has passed full-disk or
 physical-file-copy qualification.
+
+The owner subsequently reported that D:'s LED never lit although its motor
+was spinning. The 81-241 sheet 2B has one shared motor-control signal and
+separate drive-select outputs, so motor activity does not confirm selection.
+The earlier claim that both physical drives were selected is withdrawn for D:.
